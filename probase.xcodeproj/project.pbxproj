@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E5C1C782D45929900AE2744 /* README_arch.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5C1C772D45929900AE2744 /* README_arch.md */; };
-		5E5C1C7C2D4595F100AE2744 /* README_featrues.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5C1C7B2D4595F100AE2744 /* README_featrues.md */; };
 		5E5C1C7E2D45969800AE2744 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5C1C7D2D45969800AE2744 /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -33,8 +31,6 @@
 		5E5C1C472D4584D100AE2744 /* probase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = probase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E5C1C5A2D4584D300AE2744 /* probaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = probaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E5C1C642D4584D300AE2744 /* probaseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = probaseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5E5C1C772D45929900AE2744 /* README_arch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_arch.md; sourceTree = "<group>"; };
-		5E5C1C7B2D4595F100AE2744 /* README_featrues.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_featrues.md; sourceTree = "<group>"; };
 		5E5C1C7D2D45969800AE2744 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -52,6 +48,11 @@
 		5E5C1C672D4584D300AE2744 /* probaseUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = probaseUITests;
+			sourceTree = "<group>";
+		};
+		5E5C1C842D459CBE00AE2744 /* Docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Docs;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -84,12 +85,11 @@
 		5E5C1C3E2D4584D100AE2744 = {
 			isa = PBXGroup;
 			children = (
+				5E5C1C842D459CBE00AE2744 /* Docs */,
 				5E5C1C7D2D45969800AE2744 /* README.md */,
-				5E5C1C7B2D4595F100AE2744 /* README_featrues.md */,
 				5E5C1C492D4584D100AE2744 /* probase */,
 				5E5C1C5D2D4584D300AE2744 /* probaseTests */,
 				5E5C1C672D4584D300AE2744 /* probaseUITests */,
-				5E5C1C772D45929900AE2744 /* README_arch.md */,
 				5E5C1C482D4584D100AE2744 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -121,6 +121,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				5E5C1C492D4584D100AE2744 /* probase */,
+				5E5C1C842D459CBE00AE2744 /* Docs */,
 			);
 			name = probase;
 			packageProductDependencies = (
@@ -224,9 +225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E5C1C7C2D4595F100AE2744 /* README_featrues.md in Resources */,
 				5E5C1C7E2D45969800AE2744 /* README.md in Resources */,
-				5E5C1C782D45929900AE2744 /* README_arch.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
