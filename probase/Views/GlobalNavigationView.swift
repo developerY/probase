@@ -5,48 +5,72 @@
 //  Created by Siamak Ashrafi on 1/25/25.
 //
 import SwiftUI
-import SwiftData
 
 struct GlobalNavigationView: View {
-    @State private var path: [AppDestination] = []
-
     var body: some View {
-        NavigationStack(path: $path) {
-            List {
-                Button("Notes") {
-                    navigate(to: .items)
-                }
-                Button("Items") {
-                    navigate(to: .items)
-                }
-                Button("Settings") {
-                    navigate(to: .settings)
-                }
-            }
-            .navigationTitle("Global Navigation")
-            .navigationDestination(for: AppDestination.self) { destination in
-                switch destination {
-                case .notes:
-                    NotesListView()
-                        .modelContainer(for: [Note.self]) // Attach ModelContext here
-                case .items:
-                    ContentView()
-                case .settings:
-                    Text("Settings Screen")
-                }
-            }
-        }
-    }
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    
+                    // 1st Button -> Screen One
+                    NavigationLink(destination: ScreenOneView()) {
+                        Text("Go to Screen One")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
 
-    private func navigate(to destination: AppDestination) {
-        if !path.contains(destination) {
-            path.append(destination)
+                    // 2nd Button -> Screen Two
+                    NavigationLink(destination: ScreenTwoView()) {
+                        Text("Go to Screen Two")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
+                            .background(Color.green)
+                            .cornerRadius(8)
+                    }
+                    
+                    // 3rd Button -> Screen Three
+                    NavigationLink(destination: ScreenThreeView()) {
+                        Text("Go to Screen Three")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                    }
+                    
+                }
+                .padding()
+            }
+            .navigationTitle("Menu")
         }
     }
 }
 
-enum AppDestination: Hashable {
-    case notes
-    case items
-    case settings
+struct ScreenOneView: View {
+    var body: some View {
+        NotesListView()
+    }
+}
+
+struct ScreenTwoView: View {
+    var body: some View {
+        Text("Screen Two")
+            .font(.largeTitle)
+            .navigationTitle("Screen Two")
+    }
+}
+
+struct ScreenThreeView: View {
+    var body: some View {
+        Text("Screen Three")
+            .font(.largeTitle)
+            .navigationTitle("Screen Three")
+    }
 }

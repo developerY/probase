@@ -8,6 +8,8 @@ import Foundation
 import SwiftData
 
 
+
+
 @MainActor
 class SampleData {
     static let shared = SampleData()
@@ -22,6 +24,7 @@ class SampleData {
         let schema = Schema([
             Friend.self,
             Movie.self,
+            Note.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
 
@@ -42,5 +45,7 @@ class SampleData {
             for movie in Movie.sampleData {
                 context.insert(movie)
             }
+        
+        
         }
 }
