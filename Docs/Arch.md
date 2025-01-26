@@ -1,4 +1,4 @@
-#  <#Title#>
+#  Architecture
 
 **Short answer**: You _can_ still use MVVM with SwiftData, but it’s more awkward than it is with (for example) Core Data + MVVM or an Android‐style Repository + ViewModel stack. Apple’s new SwiftData system leans heavily on an “active record” style in which your data model objects are observed directly in SwiftUI. If you try to add a separate ViewModel layer, you then have to manually keep your ViewModel state in sync with changes in the SwiftData “model,” which is exactly what folks like Paul Hudson are objecting to.
 
