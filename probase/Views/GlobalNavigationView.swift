@@ -13,7 +13,7 @@ struct GlobalNavigationView: View {
                 VStack(spacing: 16) {
                     
                     // 1st Button -> Screen One
-                    NavigationLink(destination: ScreenOneView()) {
+                    NavigationLink(destination: ExampleContentView()) {
                         Text("Go to Screen One")
                             .font(.headline)
                             .padding()

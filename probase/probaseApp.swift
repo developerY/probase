@@ -26,6 +26,7 @@ struct probaseApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(for: [Article.self, Book.self, Film.self])
             //GlobalNavigationView().modelContainer(for: [Note.self, Item.self]) // Attach SwiftData context
         }
         .modelContainer(SampleData.shared.modelContainer)
