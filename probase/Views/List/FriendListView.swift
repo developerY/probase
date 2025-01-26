@@ -14,10 +14,21 @@ struct FriendListView: View {
 
 
     var body: some View {
-        List {
-            ForEach(friends) { friend in
-                Text(friend.name)
+        NavigationSplitView {
+            List {
+                ForEach(friends) { friend in
+                    NavigationLink(friend.name) {
+                        Text("Detail view for \(friend.name)")
+                            .navigationTitle("Friend")
+                            .navigationBarTitleDisplayMode(.inline)
+                    }
+                }
             }
+            .navigationTitle("Friends")
+        } detail: {
+            Text("Select a friend")
+                .navigationTitle("Friend")
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
