@@ -13,7 +13,7 @@ struct GlobalNavigationView: View {
                 VStack(spacing: 16) {
                     
                     // 1st Button -> Screen One
-                    NavigationLink(destination: ExampleContentView()) {
+                    NavigationLink(destination: NotesListView()) {
                         Text("Go to Screen One")
                             .font(.headline)
                             .padding()
@@ -35,7 +35,7 @@ struct GlobalNavigationView: View {
                     }
                     
                     // 3rd Button -> Screen Three
-                    NavigationLink(destination: ScreenThreeView()) {
+                    NavigationLink(destination: ExampleContentView()) {
                         Text("Go to Screen Three")
                             .font(.headline)
                             .padding()
@@ -53,24 +53,10 @@ struct GlobalNavigationView: View {
     }
 }
 
-struct ScreenOneView: View {
-    var body: some View {
-        NotesListView()
-    }
-}
-
 struct ScreenTwoView: View {
     var body: some View {
         Text("Screen Two")
             .font(.largeTitle)
             .navigationTitle("Screen Two")
-    }
-}
-
-struct ScreenThreeView: View {
-    var body: some View {
-        Text("Screen Three")
-            .font(.largeTitle)
-            .navigationTitle("Screen Three")
     }
 }
