@@ -14,7 +14,7 @@ struct GlobalNavigationView: View {
                     
                     // 1st Button -> Screen One
                     NavigationLink(destination: NotesListView()) {
-                        Text("Go to Screen One")
+                        Text("Notes Example")
                             .font(.headline)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -24,8 +24,8 @@ struct GlobalNavigationView: View {
                     }
 
                     // 2nd Button -> Screen Two
-                    NavigationLink(destination: ScreenTwoView()) {
-                        Text("Go to Screen Two")
+                    NavigationLink(destination: CameraViewUI()) {
+                        Text("Camera Example")
                             .font(.headline)
                             .padding()
                             .frame(maxWidth: .infinity)
