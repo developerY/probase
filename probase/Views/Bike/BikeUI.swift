@@ -157,12 +157,6 @@ struct StatCard: View {
     }
 }
 
-// MARK: - Data Model for the Speed Chart
-struct SpeedEntry: Identifiable {
-    let id = UUID()
-    let time: Double
-    let speed: Double
-}
 
 
 #Preview {
