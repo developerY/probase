@@ -11,29 +11,49 @@ struct PerformanceTuningView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                // Tab Picker
-                Picker("Performance Tabs", selection: $selectedTab) {
-                    ForEach(TuningTab.allCases, id: \.self) { tab in
-                        Text(tab.title).tag(tab)
+            ZStack {
+                // Gradient Background
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.green.opacity(0.8)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    // Title
+                    Text("Performance Tuning")
+                        .font(.largeTitle.weight(.bold))
+                        .foregroundColor(.white)
+                        .padding(.top, 20)
+
+                    // Tab Picker
+                    Picker("Performance Tabs", selection: $selectedTab) {
+                        ForEach(TuningTab.allCases, id: \.self) { tab in
+                            Text(tab.title).tag(tab)
+                        }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    .background(Color.white.opacity(0.15).cornerRadius(12))
+                    .padding(.horizontal)
+                    
+                    // Tab Content
+                    Group {
+                        switch selectedTab {
+                        case .suspension:
+                            SuspensionTuningCard()
+                        case .gearing:
+                            GearingTuningCard()
+                        case .brakes:
+                            BrakeMonitoringCard()
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer()
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                
-                // Tab Content
-                switch selectedTab {
-                case .suspension:
-                    SuspensionTuningCard()
-                case .gearing:
-                    GearingTuningCard()
-                case .brakes:
-                    BrakeMonitoringCard()
-                }
-                
-                Spacer()
             }
-            .navigationTitle("Performance Tuning")
         }
     }
 }
@@ -64,6 +84,7 @@ struct SuspensionTuningCard: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Suspension Setup")
                 .font(.headline)
+                .foregroundColor(.primary)
             
             HStack {
                 Text("Rider Weight: \(Int(riderWeight)) kg")
@@ -76,7 +97,7 @@ struct SuspensionTuningCard: View {
                     Text(mode).tag(mode)
                 }
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(SegmentedPickerStyle())
             
             Button("Apply Settings") {
                 // Send to suspension system
@@ -87,6 +108,8 @@ struct SuspensionTuningCard: View {
             Spacer()
         }
         .padding()
+        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .shadow(radius: 5)
     }
 }
 
@@ -99,8 +122,10 @@ struct GearingTuningCard: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Gearing Optimization")
                 .font(.headline)
+                .foregroundColor(.primary)
             
             Toggle("Enable Auto-Shifting", isOn: $autoShiftEnabled)
+                .toggleStyle(SwitchToggleStyle(tint: .green))
             
             HStack {
                 Text("Target Cadence: \(Int(targetCadence)) rpm")
@@ -117,6 +142,8 @@ struct GearingTuningCard: View {
             Spacer()
         }
         .padding()
+        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .shadow(radius: 5)
     }
 }
 
@@ -128,6 +155,7 @@ struct BrakeMonitoringCard: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Brake Monitoring")
                 .font(.headline)
+                .foregroundColor(.primary)
             
             Text("Current Sensitivity: \(String(format: "%.1f", brakeSensitivity))")
             Slider(value: $brakeSensitivity, in: 0...1)
@@ -142,11 +170,14 @@ struct BrakeMonitoringCard: View {
             Spacer()
         }
         .padding()
+        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .shadow(radius: 5)
     }
 }
 
-#Preview{
+#Preview {
     PerformanceTuningView()
 }
+
 
 

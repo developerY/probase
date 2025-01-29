@@ -132,9 +132,17 @@ struct SocialGamificationView: View {
                         
                         // Under your "Active Challenges" card:
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("My NFT Prizes")
-                                .font(.title3.weight(.semibold))
-                                .foregroundColor(.primary)
+                            
+                            HStack {
+                                   // Example NFT icon
+                                   Image(systemName: "hexagon.fill")
+                                       .font(.title3)
+                                       .foregroundColor(.purple)
+                                   
+                                   Text("My NFT Prizes")
+                                       .font(.title3.weight(.semibold))
+                                       .foregroundColor(.primary)
+                               }
                             
                             if viewModel.nftItems.isEmpty {
                                 Text("No NFTs yet. Complete challenges to earn them!")
