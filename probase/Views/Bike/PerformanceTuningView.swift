@@ -8,49 +8,53 @@ import SwiftUI
 
 struct PerformanceTuningView: View {
     @State private var selectedTab: TuningTab = .suspension
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 // Gradient Background
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.green.opacity(0.8)]),
+                    gradient: Gradient(colors: [selectedTab.color.opacity(0.6), Color.green.opacity(0.8)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                
+
                 VStack(spacing: 20) {
-                    // Title
                     Text("Performance Tuning")
                         .font(.largeTitle.weight(.bold))
                         .foregroundColor(.white)
-                        .padding(.top, 20)
 
-                    // Tab Picker
                     Picker("Performance Tabs", selection: $selectedTab) {
                         ForEach(TuningTab.allCases, id: \.self) { tab in
-                            Text(tab.title).tag(tab)
+                            HStack {
+                                /*Image(systemName: tab.icon)
+                                    .symbolEffect(.pulse) // Add animation here
+                                    .foregroundColor(tab.color)*/
+                                Text(tab.title)
+                            }
+                            .tag(tab)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                    .padding()
-                    .background(Color.white.opacity(0.15).cornerRadius(12))
-                    .padding(.horizontal)
-                    
-                    // Tab Content
+
+
+                    // Pass the color to each card
+            
                     Group {
                         switch selectedTab {
                         case .suspension:
-                            SuspensionTuningCard()
+                            SuspensionTuningCard(tabColor: selectedTab.color)
                         case .gearing:
-                            GearingTuningCard()
+                            GearingTuningCard(tabColor: selectedTab.color)
                         case .brakes:
-                            BrakeMonitoringCard()
+                            BrakeMonitoringCard(tabColor: selectedTab.color)
+                        default:
+                            EmptyView()  // Fallback to avoid type mismatch
                         }
                     }
                     .padding(.horizontal)
-                    
+
                     Spacer()
                 }
             }
@@ -58,12 +62,13 @@ struct PerformanceTuningView: View {
     }
 }
 
+
 // MARK: - Tuning Tabs
 enum TuningTab: CaseIterable {
     case suspension
     case gearing
     case brakes
-    
+
     var title: String {
         switch self {
         case .suspension: return "Suspension"
@@ -71,109 +76,170 @@ enum TuningTab: CaseIterable {
         case .brakes: return "Brakes"
         }
     }
+
+    var icon: String {
+        switch self {
+        case .suspension: return "car.2.fill"
+        case .gearing: return "gearshape.fill"
+        case .brakes: return "speedometer"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .suspension: return .blue
+        case .gearing: return .green
+        case .brakes: return .red
+        }
+    }
 }
+
+
 
 // MARK: - Suspension
 struct SuspensionTuningCard: View {
     @State private var riderWeight: Double = 70
     @State private var currentMode: String = "Comfort"
-    
-    let modes = ["Comfort", "Sport", "Off-Road"]
-    
+    let tabColor: Color
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            // Animated icon
+            Image(systemName: "bicycle")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+                .symbolEffect(.scale)  // Animated bounce effect
+                .background(tabColor)
+                //.foregroundColor(tabColor)
+
             Text("Suspension Setup")
                 .font(.headline)
-                .foregroundColor(.primary)
-            
+                //.foregroundColor(tabColor)
+
             HStack {
                 Text("Rider Weight: \(Int(riderWeight)) kg")
+                    //.foregroundColor(tabColor)
                 Slider(value: $riderWeight, in: 50...120, step: 1)
-                    .tint(.blue)
+                    .tint(tabColor)
             }
-            
+
             Picker("Mode", selection: $currentMode) {
-                ForEach(modes, id: \.self) { mode in
-                    Text(mode).tag(mode)
+                ForEach(["Comfort", "Sport", "Off-Road"], id: \.self) { mode in
+                    Text(mode)
+                        .foregroundColor(currentMode == mode ? .white : tabColor)
+                        .padding()
+                        .background(currentMode == mode ? tabColor : Color.clear)
+                        .cornerRadius(8)
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
-            
+
             Button("Apply Settings") {
                 // Send to suspension system
             }
             .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            
+            .foregroundColor(.white)
+            .tint(tabColor)
+
             Spacer()
         }
         .padding()
-        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .background(tabColor.opacity(0.15).cornerRadius(12))
         .shadow(radius: 5)
     }
 }
+
+
 
 // MARK: - Gearing
 struct GearingTuningCard: View {
     @State private var autoShiftEnabled = true
     @State private var targetCadence: Double = 85
-    
+    let tabColor: Color
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            // Animated icon
+            Image(systemName: "gearshape.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+                .symbolEffect(.pulse)  // Add a pulsing effect
+                .background(tabColor)
+
             Text("Gearing Optimization")
                 .font(.headline)
-                .foregroundColor(.primary)
-            
+                //.background(tabColor)
+
             Toggle("Enable Auto-Shifting", isOn: $autoShiftEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: .green))
-            
+                .toggleStyle(SwitchToggleStyle(tint: tabColor))
+
             HStack {
                 Text("Target Cadence: \(Int(targetCadence)) rpm")
+                    //.background(tabColor)
                 Slider(value: $targetCadence, in: 60...120, step: 5)
-                    .tint(.green)
+                    .tint(tabColor)
             }
-            
+
             Button("Apply Gear Settings") {
                 // Send to electronic drivetrain
             }
             .buttonStyle(.borderedProminent)
-            .tint(.green)
-            
+            //.foregroundColor(.white)
+            .tint(tabColor)
+
             Spacer()
         }
         .padding()
-        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .background(tabColor.opacity(0.15).cornerRadius(12))
         .shadow(radius: 5)
     }
 }
 
+
+
 // MARK: - Brakes
 struct BrakeMonitoringCard: View {
     @State private var brakeSensitivity: Double = 0.5
-    
+    let tabColor: Color
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            // Animated icon
+            Image(systemName: "speedometer")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+                .symbolEffect(.scale)  // Add scale effect
+                .background(tabColor)
+
             Text("Brake Monitoring")
                 .font(.headline)
-                .foregroundColor(.primary)
-            
+                //.foregroundColor(tabColor)
+
             Text("Current Sensitivity: \(String(format: "%.1f", brakeSensitivity))")
+                //.foregroundColor(tabColor)
             Slider(value: $brakeSensitivity, in: 0...1)
-                .tint(.red)
-            
+                .tint(tabColor)
+
             Button("Calibrate Brakes") {
                 // Perform a calibration test
             }
             .buttonStyle(.borderedProminent)
-            .tint(.red)
-            
+            .foregroundColor(.white)
+            .tint(tabColor)
+
             Spacer()
         }
         .padding()
-        .background(Color.white.opacity(0.2).cornerRadius(12))
+        .background(tabColor.opacity(0.15).cornerRadius(12))
         .shadow(radius: 5)
     }
 }
+
+
+
 
 #Preview {
     PerformanceTuningView()
