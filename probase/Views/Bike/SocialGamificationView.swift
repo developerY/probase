@@ -11,98 +11,147 @@ struct SocialGamificationView: View {
     @State private var co2Saved = 18.5 // in kg
     @State private var currentBadge = "Eco-Warrior"
     
+    // Example pastel tints
+    private let pastelBlue   = Color(red: 0.85, green: 0.93, blue: 1.0)
+    private let pastelGreen  = Color(red: 0.85, green: 1.0,  blue: 0.93)
+    private let pastelOrange = Color(red: 1.0,  green: 0.9,  blue: 0.8)
+    private let pastelYellow = Color(red: 1.0,  green: 0.97, blue: 0.85)
+    
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Stats Header
-                    VStack(spacing: 8) {
-                        Text("Weekly Miles: \(weeklyMiles)")
-                            .font(.title.weight(.bold))
+            ZStack {
+                // MARK: - Background Gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.8),
+                        Color.green.opacity(0.8)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
                         
-                        Text("CO₂ Saved: \(String(format: "%.1f", co2Saved)) kg")
-                            .font(.headline)
-                            .foregroundColor(.green)
-                    }
-                    .padding()
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    
-                    // Current Badge
-                    HStack {
-                        Image(systemName: "leaf.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.green)
-                        VStack(alignment: .leading) {
-                            Text("Current Badge")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text(currentBadge)
-                                .font(.headline)
-                                .fontWeight(.bold)
-                        }
-                        Spacer()
+                        Text("Social & Gamification")
+                            .font(.largeTitle.weight(.bold))
+                            .foregroundColor(.primary)
+                            .padding(.top, 20)
                         
-                        Button("View All Badges") {
-                            // Navigate to badges gallery
+                        // MARK: - Weekly Miles Card
+                        VStack(spacing: 8) {
+                            Text("Weekly Miles: \(weeklyMiles)")
+                                .font(.title.weight(.semibold))
+                                .foregroundColor(.primary)
+                            
+                            Text("CO₂ Saved: \(String(format: "%.1f", co2Saved)) kg")
+                                .font(.subheadline)
+                                .foregroundColor(.green)
                         }
-                        .font(.subheadline)
-                    }
-                    .padding()
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    
-                    // Leaderboard
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("Leaderboard")
-                                .font(.title3.weight(.semibold))
+                        .padding(.vertical, 30)
+                        .frame(maxWidth: .infinity)
+                        .frostedTintBackground(color: pastelBlue.opacity(0.3))
+                        .padding(.horizontal)
+                        
+                        // MARK: - Current Badge Card
+                        HStack(spacing: 12) {
+                            Image(systemName: "leaf.fill")
+                                .font(.largeTitle)
+                                .foregroundColor(.green)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Current Badge")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Text(currentBadge)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                            }
                             Spacer()
-                            NavigationLink("See All") {
-                                Text("Full Leaderboard Screen")
+                            
+                            Button("View All Badges") {
+                                // Navigate to badges gallery
                             }
+                            .foregroundColor(.blue)
+                            .font(.subheadline)
                         }
+                        .padding()
+                        .frostedTintBackground(color: pastelGreen.opacity(0.3))
+                        .padding(.horizontal)
                         
-                        ForEach(mockLeaders) { user in
+                        // MARK: - Leaderboard Card
+                        VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("\(user.rank). \(user.name)")
+                                Text("Leaderboard")
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundColor(.primary)
                                 Spacer()
-                                Text("\(user.miles) mi")
+                                NavigationLink("See All") {
+                                    Text("Full Leaderboard Screen")
+                                }
+                                .font(.callout)
                             }
-                            .padding(.vertical, 4)
+                            
+                            ForEach(mockLeaders) { user in
+                                HStack {
+                                    Text("\(user.rank). \(user.name)")
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Text("\(user.miles) mi")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                         }
-                    }
-                    .padding()
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    
-                    // Challenges
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Active Challenges")
-                            .font(.title3.weight(.semibold))
+                        .padding()
+                        .frostedTintBackground(color: pastelOrange.opacity(0.3))
+                        .padding(.horizontal)
                         
-                        ForEach(mockChallenges) { challenge in
-                            HStack {
-                                Text(challenge.title)
-                                Spacer()
-                                Text("\(challenge.progress)%")
+                        // MARK: - Challenges Card
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Active Challenges")
+                                .font(.title3.weight(.semibold))
+                                .foregroundColor(.primary)
+                            
+                            ForEach(mockChallenges) { challenge in
+                                HStack {
+                                    Text(challenge.title)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Text("\(challenge.progress)%")
+                                        .foregroundColor(.secondary)
+                                }
                             }
-                            .padding(.vertical, 4)
                         }
+                        .padding()
+                        .frostedTintBackground(color: pastelYellow.opacity(0.3))
+                        .padding(.horizontal)
+                        
+                        Spacer(minLength: 30)
                     }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    
-                    Spacer()
                 }
             }
-            .navigationTitle("Social & Gamification")
+            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+// MARK: - Frosted Glass Modifier
+extension View {
+    /// Applies a frosted glass background plus a color overlay
+    func frostedTintBackground(color: Color) -> some View {
+        self
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.thinMaterial) // The frosted/blurry material
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(color) // Semi-transparent tint
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
     }
 }
 
@@ -131,8 +180,6 @@ let mockChallenges = [
     Challenge(title: "Commute by Bike 5 Days in a Row", progress: 60)
 ]
 
-#Preview
-{
-    SocialGamificationView()
+#Preview{
+        SocialGamificationView()
 }
-

@@ -19,7 +19,12 @@ struct BikeView: View {
     @State private var elevationGain: Double = 220
     @State private var heartRate: Int = 120
     
-    @State private var speedData: [SpeedEntry] = (0..<20).map { SpeedEntry(time: Double($0), speed: Double.random(in: 10...20)) }
+    @State private var speedData: [SpeedEntry] = (0..<20).map {
+        SpeedEntry(time: Double($0), speed: Double.random(in: 10...20))
+    }
+    
+    // Track whether the map is shown or hidden
+    @State private var showMap = true
     
     var body: some View {
         NavigationStack {
@@ -35,18 +40,42 @@ struct BikeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         
-                        // MARK: - Header
-                        Text("Bike Tracker")
-                            .font(.largeTitle.weight(.bold))
-                            .foregroundColor(.white)
-                            .padding(.top, 20)
+                        // MARK: - Custom Header
+                        HStack {
+                            Text("Bike Tracker")
+                                .font(.largeTitle.weight(.bold))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            // Toggle Button for Map
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    showMap.toggle()
+                                }
+                            } label: {
+                                Image(systemName: showMap
+                                      ? "chevron.up.circle.fill"
+                                      : "chevron.down.circle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding(.top, 20)
+                        .padding(.horizontal)
                         
-                        // MARK: - Map
-                        Map(coordinateRegion: $region)
-                            .frame(height: 250)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                            .padding(.horizontal)
+                        // MARK: - Map (Hideable)
+                        if showMap {
+                            Map(coordinateRegion: $region)
+                                .frame(height: 250)
+                                .cornerRadius(15)
+                                .shadow(radius: 5)
+                                .padding(.horizontal)
+                                .transition(.asymmetric(
+                                    insertion: .move(edge: .top).combined(with: .opacity),
+                                    removal: .move(edge: .top).combined(with: .opacity)
+                                ))
+                        }
                         
                         // MARK: - Stats Cards
                         HStack(spacing: 16) {
@@ -125,13 +154,16 @@ struct BikeView: View {
                     }
                 }
             }
+            // Hide default nav bar
             .navigationTitle("")
             .navigationBarHidden(true)
         }
     }
 }
 
-// MARK: - StatCard Component
+
+
+// MARK: - StatCard Component (Frosted Glass)
 struct StatCard: View {
     let iconName: String
     let statName: String
@@ -142,22 +174,21 @@ struct StatCard: View {
             Image(systemName: iconName)
                 .font(.title)
                 .foregroundColor(.white)
+            
             Text(statName)
                 .font(.subheadline)
                 .foregroundColor(.white.opacity(0.8))
+            
             Text(statValue)
                 .font(.headline.bold())
                 .foregroundColor(.white)
         }
         .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15))
+        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
         .frame(maxWidth: .infinity)
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(15)
-        .shadow(radius: 5)
     }
 }
-
-
 
 #Preview {
     BikeView()
