@@ -17,6 +17,8 @@ struct SocialGamificationView: View {
     private let pastelOrange = Color(red: 1.0,  green: 0.9,  blue: 0.8)
     private let pastelYellow = Color(red: 1.0,  green: 0.97, blue: 0.85)
     
+    let viewModel = NFTLibraryViewModel()
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -128,7 +130,45 @@ struct SocialGamificationView: View {
                         .frostedTintBackground(color: pastelYellow.opacity(0.3))
                         .padding(.horizontal)
                         
+                        // Under your "Active Challenges" card:
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("My NFT Prizes")
+                                .font(.title3.weight(.semibold))
+                                .foregroundColor(.primary)
+                            
+                            if viewModel.nftItems.isEmpty {
+                                Text("No NFTs yet. Complete challenges to earn them!")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                // Quick row or mini-grid
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(viewModel.nftItems) { nft in
+                                            NFTCardView(nft: nft)
+                                                //.frame(width: 120) // mini display
+                                                .onTapGesture {
+                                                    viewModel.selectedNFT = nft
+                                                    viewModel.showDetail = true
+                                                }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            Button("View All NFTs") {
+                                // Navigate to NFTLibraryView
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .frostedTintBackground(color: pastelBlue.opacity(0.3))
+                        .padding(.horizontal)
+                        //.background(... styled background ...)
+                        //.shadow(...)
+                        
                         Spacer(minLength: 30)
+
                     }
                 }
             }
