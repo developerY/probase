@@ -101,18 +101,29 @@ struct SuspensionTuningCard: View {
     @State private var riderWeight: Double = 70
     @State private var currentMode: String = "Comfort"
     let tabColor: Color
+    @State private var shake = false
+
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Animated icon
+
             Image(systemName: "bicycle")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 50)
-                .symbolEffect(.scale)  // Animated bounce effect
-                .background(tabColor)
-                //.foregroundColor(tabColor)
+                .foregroundColor(tabColor)
+                .offset(x: shake ? -8 : 8, y: shake ? -4 : 4)
+                .rotationEffect(.degrees(shake ? -5 : 5))  // Add slight tilting
+                .animation(
+                    Animation.easeInOut(duration: 0.5).repeatForever(autoreverses: true),
+                    value: shake
+                )
+                .onAppear {
+                    shake = true
+                }
 
+            
             Text("Suspension Setup")
                 .font(.headline)
                 //.foregroundColor(tabColor)
@@ -157,16 +168,27 @@ struct GearingTuningCard: View {
     @State private var autoShiftEnabled = true
     @State private var targetCadence: Double = 85
     let tabColor: Color
+    
+    @State private var rotateGear = false
+
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Animated icon
-            Image(systemName: "gearshape.fill")
+            Image(systemName: "gear")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 50)
-                .symbolEffect(.pulse)  // Add a pulsing effect
-                .background(tabColor)
+                //.symbolEffect(.pulse)  // Add a pulsing effect
+                //.background(tabColor)
+                .rotationEffect(.degrees(rotateGear ? 360 : 0))
+                    .animation(
+                        Animation.linear(duration: 2.0).repeatForever(autoreverses: false),
+                        value: rotateGear
+                    )
+                    .onAppear {
+                        rotateGear = true
+                    }
 
             Text("Gearing Optimization")
                 .font(.headline)
@@ -203,6 +225,9 @@ struct GearingTuningCard: View {
 struct BrakeMonitoringCard: View {
     @State private var brakeSensitivity: Double = 0.5
     let tabColor: Color
+    
+    @State private var brakePulse = false
+
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -212,7 +237,15 @@ struct BrakeMonitoringCard: View {
                 .scaledToFit()
                 .frame(height: 50)
                 .symbolEffect(.scale)  // Add scale effect
-                .background(tabColor)
+                //.background(tabColor)
+                .scaleEffect(brakePulse ? 1.4 : 1.0)
+                .animation(
+                    Animation.easeInOut(duration: 0.8).repeatForever(autoreverses: true),
+                    value: brakePulse
+                )
+                .onAppear {
+                    brakePulse = true
+                }
 
             Text("Brake Monitoring")
                 .font(.headline)
