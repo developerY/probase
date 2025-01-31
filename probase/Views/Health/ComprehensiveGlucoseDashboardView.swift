@@ -257,3 +257,21 @@ struct ComprehensiveGlucoseDashboardView: View {
     }
 }
 
+struct ComprehensiveGlucoseDashboardView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            // Preview in Light Mode on an iPhone 15 Pro
+            ComprehensiveGlucoseDashboardView()
+                .environmentObject(DiabetesDataStore())
+                .previewDevice("iPhone 15 Pro")
+                .previewDisplayName("iPhone 15 Pro - Light Mode")
+
+            // Preview in Dark Mode on an iPhone SE (3rd generation)
+            ComprehensiveGlucoseDashboardView()
+                .environmentObject(DiabetesDataStore())
+                .previewDevice("iPhone SE (3rd generation)")
+                .preferredColorScheme(.dark)
+                .previewDisplayName("iPhone SE (3rd gen) - Dark Mode")
+        }
+    }
+}
