@@ -44,7 +44,24 @@ struct SocialGamificationView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.green)
                             }
-                        }//.cardBackground(with: .blue.opacity(0.3))
+                        }/*.background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [.skyBlue.opacity(0.3), .aqua.opacity(0.3)]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                        )*/
+                        /*.cardBackgroundGradient(
+                            with: LinearGradient(
+                                gradient: Gradient(colors: [.skyBlue.opacity(0.3), .aqua.opacity(0.3)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )*/
+
 
                         // MARK: - Current Badge Card
                         cardView {
@@ -66,10 +83,10 @@ struct SocialGamificationView: View {
                                 Spacer()
 
                                 NavigationLink("View All Badges") {
-                                    Text("Badges Gallery")
+                                    BadgesView(badges: mockBadges)
                                 }
-                                .foregroundColor(.blue)
                                 .font(.subheadline)
+                                .foregroundColor(.blue)
                             }
                         }
 
@@ -184,6 +201,18 @@ struct SocialGamificationView: View {
 }
 
 extension View {
+    func cardBackgroundGradient(with gradient: LinearGradient) -> some View {
+        self
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(gradient)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
+    }
+}
+
+extension View {
     func cardBackground(with color: Color) -> some View {
         self.background(
             RoundedRectangle(cornerRadius: 16)
@@ -192,6 +221,35 @@ extension View {
                 .shadow(color: color.opacity(0.3), radius: 5, x: 0, y: 3)
         )
     }
+}
+
+extension View {
+    func frostedGlassCard() -> some View {
+        self
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.15))  // A light, transparent base
+                    .blur(radius: 10)                 // Create blur to simulate frosted look
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)  // Subtle white border for definition
+            )
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 5)  // Light shadow for depth
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+
+
+extension Color {
+    static let skyBlue = Color(red: 0.53, green: 0.81, blue: 0.92)  // Example RGB values
+    static let mintGreen = Color(red: 0.6, green: 0.98, blue: 0.6)
+    static let pastelOrange = Color(red: 1.0, green: 0.87, blue: 0.68)
+    static let lavender = Color(red: 0.9, green: 0.9, blue: 1.0)
+    static let peach = Color(red: 1.0, green: 0.85, blue: 0.72)
+    static let aqua = Color(red: 0.5, green: 0.85, blue: 0.9)         // Aqua-inspired color
+    
 }
 
 // MARK: - Sample Models
