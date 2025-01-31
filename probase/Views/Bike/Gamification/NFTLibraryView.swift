@@ -58,6 +58,13 @@ struct NFTLibraryView: View {
                 }
                 .sheet(item: $viewModel.selectedNFT) { nft in
                     NFTDetailView(nft: nft)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [.purple.opacity(0.7), .blue.opacity(0.7)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 }
             }
             .navigationTitle("NFT Library")
