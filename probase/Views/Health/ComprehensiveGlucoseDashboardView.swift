@@ -8,9 +8,21 @@ import SwiftUI
 import SwiftData
 import Charts
 
+import SwiftUI
+import Charts
+
 struct ComprehensiveGlucoseDashboardView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
-
+    
+    // MARK: - Chart Visibility States
+    @State private var showGlucoseChart = true
+    @State private var showActiveInsulinChart = true
+    @State private var showInsulinDeliveryChart = true
+    @State private var showCarbsChart = true
+    
+    // MARK: - Customization Sheet
+    @State private var showingCustomizationSheet = false
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -18,23 +30,52 @@ struct ComprehensiveGlucoseDashboardView: View {
                     
                     // MARK: - HEADER (Key Info)
                     headerSection
-
+                    
                     // MARK: - GLUCOSE CHART
-                    glucoseSection
+                    if showGlucoseChart {
+                        glucoseSection
+                            .transition(.slide)       // Animate appear/disappear
+                    }
 
-                    // MARK: - ACTIVE INSULIN
-                    activeInsulinSection
-
-                    // MARK: - INSULIN DELIVERY
-                    insulinDeliverySection
-
-                    // MARK: - ACTIVE CARBS
-                    carbSection
+                    // MARK: - ACTIVE INSULIN CHART
+                    if showActiveInsulinChart {
+                        activeInsulinSection
+                            .transition(.slide)
+                    }
+                    
+                    // MARK: - INSULIN DELIVERY CHART
+                    if showInsulinDeliveryChart {
+                        insulinDeliverySection
+                            .transition(.slide)
+                    }
+                    
+                    // MARK: - ACTIVE CARBS CHART
+                    if showCarbsChart {
+                        carbSection
+                            .transition(.slide)
+                    }
                 }
                 .padding(.vertical, 8)
+                .animation(.easeInOut, value: showGlucoseChart)
+                .animation(.easeInOut, value: showActiveInsulinChart)
+                .animation(.easeInOut, value: showInsulinDeliveryChart)
+                .animation(.easeInOut, value: showCarbsChart)
             }
             .navigationTitle("Glucose Dashboard")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Button to open the "Customize" sheet
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingCustomizationSheet.toggle()
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingCustomizationSheet) {
+                customizeDashboardSheet
+            }
         }
     }
     
@@ -245,6 +286,28 @@ struct ComprehensiveGlucoseDashboardView: View {
                 .padding(4)
                 .background(Color.green)
                 .cornerRadius(4)
+        }
+    }
+    
+    // MARK: - CUSTOMIZATION SHEET
+    private var customizeDashboardSheet: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Charts to Display")) {
+                    Toggle("Glucose Chart", isOn: $showGlucoseChart)
+                    Toggle("Active Insulin", isOn: $showActiveInsulinChart)
+                    Toggle("Insulin Delivery", isOn: $showInsulinDeliveryChart)
+                    Toggle("Carbohydrates", isOn: $showCarbsChart)
+                }
+            }
+            .navigationTitle("Customize Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        showingCustomizationSheet = false
+                    }
+                }
+            }
         }
     }
     
