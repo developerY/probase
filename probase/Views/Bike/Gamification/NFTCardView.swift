@@ -75,4 +75,23 @@ struct NFTCardView: View {
     }
 }
 
+#Preview {
+    let sampleNFT = NFTItem(
+        tokenID: "12345",
+        contractAddress: "0xabc123456789",
+        name: "Epic Dragon",
+        imageURL: URL(string: "https://via.placeholder.com/150")!  // Replace with an actual image URL
+    )
+    
+    NFTCardView(nft: sampleNFT)
+        .frame(width: 200, height: 300)  // Adjust size for preview
+        .padding()
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [.blue.opacity(0.7), .purple.opacity(0.7)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+}
 

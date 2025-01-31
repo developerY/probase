@@ -69,3 +69,22 @@ struct NFTLibraryView: View {
         }
     }
 }
+
+
+#Preview {
+    let viewModel = NFTLibraryViewModel()
+    viewModel.nftItems = [
+        NFTItem(tokenID: "1", contractAddress: "0xABCD", name: "Eco Hero", imageURL: URL(string: "https://via.placeholder.com/150")!),
+        NFTItem(tokenID: "2", contractAddress: "0xEFGH", name: "Nature Guardian", imageURL: URL(string: "https://via.placeholder.com/150")!)
+    ]
+    
+    return NFTLibraryView()
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [.purple.opacity(0.7), .blue.opacity(0.7)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .environmentObject(viewModel)
+}

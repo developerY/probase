@@ -49,3 +49,20 @@ struct NFTDetailView: View {
     }
 }
 
+#Preview {
+    let sampleNFT = NFTItem(
+        tokenID: "67890",
+        contractAddress: "0xdef456789abc",
+        name: "Legendary Phoenix",
+        imageURL: URL(string: "https://via.placeholder.com/300")!  // Replace with actual image URL
+    )
+    
+    NFTDetailView(nft: sampleNFT)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [.purple.opacity(0.7), .blue.opacity(0.7)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+}
