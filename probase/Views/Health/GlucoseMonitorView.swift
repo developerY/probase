@@ -79,3 +79,17 @@ struct GlucoseMonitorView: View {
     }
 }
 
+// MARK: - SwiftUI Preview
+struct GlucoseMonitorView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            GlucoseMonitorView()
+                .previewDisplayName("Default Preview")
+                .previewDevice("iPhone 15 Pro")
+
+            GlucoseMonitorView()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark Mode Preview")
+        }
+    }
+}
