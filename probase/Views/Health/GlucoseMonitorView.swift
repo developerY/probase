@@ -7,55 +7,78 @@
 import SwiftUI
 
 struct GlucoseMonitorView: View {
-    @State private var glucoseLevel: Double = 110.0  // Example starting value
+    @EnvironmentObject var dataStore: GlucoseDataStore
+
+    @State private var glucoseLevel: Double = 100.0
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    @State private var notes: String = ""
+    @State private var tags: String = ""
 
     var body: some View {
-        VStack(spacing: 20) {
-            // SF Symbol representing health data (use appropriate symbol for glucose)
-            Image(systemName: "drop.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.blue)
+        NavigationView {
+            VStack(spacing: 16) {
+                Text("Glucose Monitor")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.top)
 
-            Text("Glucose Monitor")
-                .font(.largeTitle)
-                .bold()
+                // Current glucose reading
+                HStack {
+                    Image(systemName: "drop.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.blue)
+                    Text("\(Int(glucoseLevel)) mg/dL")
+                        .font(.system(size: 36, weight: .bold))
+                }
 
-            // Display glucose reading
-            Text("\(Int(glucoseLevel)) mg/dL")
-                .font(.title)
+                // Slider to simulate changes
+                Slider(value: $glucoseLevel, in: 40...300, step: 1)
+                    .padding(.horizontal)
+                    .onChange(of: glucoseLevel) { newValue in
+                        checkGlucoseLevel(newValue)
+                    }
+
+                // Notes and tags (basic text fields for demonstration)
+                Group {
+                    TextField("Notes (optional)", text: $notes)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                    TextField("Tags (comma-separated)", text: $tags)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                }
+
+                // Button to add reading
+                Button(action: addReading) {
+                    Label("Add Reading", systemImage: "plus.circle.fill")
+                }
                 .padding()
-
-            // Slider to simulate glucose level changes (for demo purposes)
-            Slider(value: $glucoseLevel, in: 40...300, step: 1.0)
-                .padding()
-                .onChange(of: glucoseLevel) { newValue in
-                    checkGlucoseLevel(newValue)
-                }
-
-            // Buttons for manual alerts (for demo purposes)
-            HStack {
-                Button("Simulate Low Glucose") {
-                    simulateLowGlucose()
-                }
                 .buttonStyle(.borderedProminent)
-                .tint(.red)
 
-                Button("Simulate High Glucose") {
-                    simulateHighGlucose()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                Spacer()
             }
-        }
-        .padding()
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Glucose Alert"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            .navigationTitle("Monitor")
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Glucose Alert"),
+                      message: Text(alertMessage),
+                      dismissButton: .default(Text("OK")))
+            }
         }
     }
 
-    // Check glucose level and show alerts if needed
+    private func addReading() {
+        dataStore.addReading(
+            level: glucoseLevel,
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+            tags: tags
+                .split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        )
+        notes = ""
+        tags = ""
+    }
+
     private func checkGlucoseLevel(_ level: Double) {
         if level < 70 {
             alertMessage = "Low Glucose Detected! (\(Int(level)) mg/dL)"
@@ -64,18 +87,6 @@ struct GlucoseMonitorView: View {
             alertMessage = "High Glucose Detected! (\(Int(level)) mg/dL)"
             showAlert = true
         }
-    }
-
-    // Simulate low glucose manually
-    private func simulateLowGlucose() {
-        glucoseLevel = 65
-        checkGlucoseLevel(glucoseLevel)
-    }
-
-    // Simulate high glucose manually
-    private func simulateHighGlucose() {
-        glucoseLevel = 200
-        checkGlucoseLevel(glucoseLevel)
     }
 }
 
@@ -86,7 +97,7 @@ struct GlucoseMonitorView_Previews: PreviewProvider {
             GlucoseMonitorView()
                 .previewDisplayName("Default Preview")
                 .previewDevice("iPhone 15 Pro")
-
+            
             GlucoseMonitorView()
                 .preferredColorScheme(.dark)
                 .previewDisplayName("Dark Mode Preview")
