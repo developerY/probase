@@ -7,79 +7,80 @@
 import SwiftUI
 import MapKit
 
+// Custom POI struct conforming to Identifiable
+struct POILocation: Identifiable {
+    let id = UUID()  // Unique identifier
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+}
+
 struct RoutePlanningView: View {
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
-    @State private var avoidTraffic = true
-    @State private var preferFlat = false
-    @State private var preferScenic = false
-    @State private var arNavigationEnabled = false
-    @State private var isFlipped = false
-    @State private var isFullscreenMap = false
-    @State private var showRoutePath = false
 
-    // Mock Points of Interest
-    let poiLocations = [
-        ("Ferry Building", CLLocationCoordinate2D(latitude: 37.7955, longitude: -122.3937)),
-        ("Golden Gate Park", CLLocationCoordinate2D(latitude: 37.7694, longitude: -122.4862)),
-        ("Chase Center", CLLocationCoordinate2D(latitude: 37.768, longitude: -122.387))
+    @State private var poiLocations = [
+        POILocation(name: "Ferry Building", coordinate: CLLocationCoordinate2D(latitude: 37.7955, longitude: -122.3937)),
+        POILocation(name: "Golden Gate Park", coordinate: CLLocationCoordinate2D(latitude: 37.7694, longitude: -122.4862)),
+        POILocation(name: "Chase Center", coordinate: CLLocationCoordinate2D(latitude: 37.768, longitude: -122.387))
     ]
+
+    @State private var isFullscreenMap = false
+    @State private var isFlipped = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background Gradient
+                // Gradient Background
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.green.opacity(0.6)]),
+                    gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.green.opacity(0.6)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
 
                 VStack(spacing: 16) {
+                    // Title with animation
                     Text("Route Planning")
                         .font(.largeTitle.weight(.bold))
                         .foregroundColor(.white)
                         .transition(.opacity)
-                        .animation(.easeIn(duration: 0.5), value: region)
+                        .animation(.easeIn(duration: 0.5))
+                    //.animation(.easeIn(duration: 0.5), value: region)
 
-                    // Preferences with animation on appearance
+                    // Preferences Section
                     VStack(alignment: .leading) {
-                        Toggle("Avoid Heavy Traffic", isOn: $avoidTraffic)
-                        Toggle("Prefer Flat Terrain", isOn: $preferFlat)
-                        Toggle("Prefer Scenic Routes", isOn: $preferScenic)
+                        Toggle("Avoid Heavy Traffic", isOn: .constant(true))
+                        Toggle("Prefer Flat Terrain", isOn: .constant(false))
+                        Toggle("Prefer Scenic Routes", isOn: .constant(false))
                     }
                     .padding()
-                    .background(.thinMaterial)
-                    .cornerRadius(12)
+                    .background(Color.white.opacity(0.2).cornerRadius(12))
                     .padding(.horizontal)
-                    .transition(.scale)
-                    .animation(.spring(), value: region)
 
-                    // Map with flip, fullscreen, and route drawing
+                    // Map and Flip/Fullscreen Controls
                     ZStack {
                         if isFullscreenMap {
-                            // Fullscreen Map
+                            // Fullscreen map view
                             Map(coordinateRegion: $region, interactionModes: .all, annotationItems: poiLocations) { location in
-                                MapAnnotation(coordinate: location.1) {
+                                MapAnnotation(coordinate: location.coordinate) {
                                     Image(systemName: "mappin.circle.fill")
                                         .foregroundColor(.red)
                                         .onTapGesture {
-                                            print("\(location.0) tapped!")
+                                            print("\(location.name) tapped!")
                                         }
                                 }
                             }
                             .ignoresSafeArea()
                         } else {
-                            // Map with POIs and route animation
+                            // Map in standard view with overlay
                             Map(coordinateRegion: $region, interactionModes: .all, annotationItems: poiLocations) { location in
-                                MapAnnotation(coordinate: location.1) {
+                                MapAnnotation(coordinate: location.coordinate) {
                                     Image(systemName: "mappin.circle.fill")
                                         .foregroundColor(.red)
                                         .onTapGesture {
-                                            print("\(location.0) tapped!")
+                                            print("\(location.name) tapped!")
                                         }
                                 }
                             }
@@ -95,6 +96,8 @@ struct RoutePlanningView: View {
                         VStack {
                             HStack {
                                 Spacer()
+
+                                // Flip Button
                                 Button {
                                     withAnimation(.spring()) {
                                         isFlipped.toggle()
@@ -111,6 +114,7 @@ struct RoutePlanningView: View {
                                         .shadow(radius: 3)
                                 }
 
+                                // Fullscreen Button
                                 Button {
                                     withAnimation(.spring()) {
                                         isFullscreenMap.toggle()
@@ -134,17 +138,16 @@ struct RoutePlanningView: View {
                     .frame(height: 300)
                     .padding(.horizontal)
 
-                    // AR Toggle
-                    Toggle("Enable AR Navigation (Beta)", isOn: $arNavigationEnabled)
+                    // AR Navigation Toggle
+                    Toggle("Enable AR Navigation (Beta)", isOn: .constant(false))
                         .toggleStyle(SwitchToggleStyle(tint: .purple))
                         .padding(.horizontal)
 
                     // Start Navigation Button
                     Button {
-                        showRoutePath.toggle()
-                        print("Start Navigation Pressed")
+                        print("Start Navigation clicked")
                     } label: {
-                        Text(arNavigationEnabled ? "Start AR Navigation" : "Start Navigation")
+                        Text("Start Navigation")
                             .font(.headline)
                     }
                     .buttonStyle(.borderedProminent)
@@ -153,9 +156,8 @@ struct RoutePlanningView: View {
 
                     Spacer()
                 }
-                .padding(.top, 20)
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
@@ -163,4 +165,3 @@ struct RoutePlanningView: View {
 #Preview {
     RoutePlanningView()
 }
-
