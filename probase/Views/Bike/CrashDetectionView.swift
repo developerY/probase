@@ -17,7 +17,7 @@ struct CrashDetectionView: View {
     // Dynamic background based on monitoring state
     private var dynamicBackground: LinearGradient {
         LinearGradient(
-            gradient: Gradient(colors: isMonitoringActive ? [.green.opacity(0.8), .blue.opacity(0.8)] : [.red.opacity(0.8), .orange.opacity(0.8)]),
+            gradient: Gradient(colors: isMonitoringActive ? [.red.opacity(0.8), .orange.opacity(0.8)] :  [.green.opacity(0.8), .blue.opacity(0.8)])  ,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
