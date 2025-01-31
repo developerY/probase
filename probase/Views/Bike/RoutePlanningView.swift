@@ -160,7 +160,7 @@ struct RoutePlanningView: View {
                         .font(.headline)
                         .foregroundColor(.white)
 
-                    Image(systemName: "car.fill")
+                    Image(systemName: "bicycle")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 100)
