@@ -104,7 +104,6 @@ class DiabetesDataStore: ObservableObject {
     }
 }
 
-// MARK: - Shuffle Numeric Values
 extension DiabetesDataStore {
     /// Randomize only the numeric fields (levels, units, etc.), keep dates sorted.
     func shuffleAllData() {
@@ -112,27 +111,48 @@ extension DiabetesDataStore {
         for i in glucoseData.indices {
             glucoseData[i].level = Double.random(in: 4.5...9.5)
         }
-        
-        // Predicted
+
+        // Predicted glucose
         for i in predictedGlucoseData.indices {
             predictedGlucoseData[i].predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
         }
-        
+
         // Active insulin
         for i in activeInsulinData.indices {
             activeInsulinData[i].units = Double.random(in: 0.0...1.0)
         }
-        
+
         // Insulin delivery
         for i in insulinDeliveryData.indices {
             insulinDeliveryData[i].deliveredUnits = Double.random(in: 0.0...1.5)
         }
-        
+
         // Carbs
         for i in carbData.indices {
             carbData[i].grams = Double.random(in: 0.0...25.0)
         }
-        
+
+        // New: Randomized exercise data (if applicable)
+        let exerciseData: [ExerciseDataPoint] = (0..<10).map { _ in
+            ExerciseDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                type: ["Walking", "Running", "Cycling", "Yoga"].randomElement()!,
+                durationInMinutes: Int.random(in: 15...90),
+                intensity: ["Low", "Moderate", "High"].randomElement()!
+            )
+        }
+        // (Assume you store this exercise data in a published property if needed)
+
+        // New: Randomized meal data (if applicable)
+        let mealData: [MealDataPoint] = (0..<5).map { _ in
+            MealDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                mealType: ["Breakfast", "Lunch", "Dinner", "Snack"].randomElement()!,
+                description: ["Oatmeal", "Sandwich", "Salad", "Grilled Chicken"].randomElement()!,
+                carbs: Double.random(in: 20...80)
+            )
+        }
+
         // Randomize top-level summary fields
         currentGlucose = Double.random(in: 4.5...9.5)
         predictedGlucose = Double.random(in: 4.5...9.5)
