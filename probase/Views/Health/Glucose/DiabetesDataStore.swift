@@ -111,7 +111,67 @@ class DiabetesDataStore: ObservableObject {
 
     init() {
         generateMockData()
+        generateAdditionalMockData()
     }
+    
+    // Helper Methods for Data Generation
+    private func generateExerciseData() -> [ExerciseDataPoint] {
+        (0..<10).map { _ in
+            ExerciseDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                type: ["Walking", "Running", "Yoga"].randomElement()!,
+                durationInMinutes: Int.random(in: 15...90),
+                intensity: ["Low", "Moderate", "High"].randomElement()!
+            )
+        }
+    }
+
+    private func generateMealData() -> [MealDataPoint] {
+        (0..<5).map { _ in
+            MealDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                mealType: ["Breakfast", "Lunch", "Dinner", "Snack"].randomElement()!,
+                description: ["Oatmeal", "Grilled Chicken", "Salad"].randomElement()!,
+                carbs: Double.random(in: 20...80)
+            )
+        }
+    }
+
+    private func generateTrend(period: String, days: Int) -> GlucoseTrend {
+        let filteredData = glucoseData.filter { $0.date > Date().addingTimeInterval(-Double(days * 24 * 60 * 60)) }
+        let avgGlucose = filteredData.map(\.level).reduce(0, +) / Double(filteredData.count)
+        return GlucoseTrend(
+            period: period,
+            averageGlucose: avgGlucose,
+            highestGlucose: filteredData.map(\.level).max() ?? 0.0,
+            lowestGlucose: filteredData.map(\.level).min() ?? 0.0,
+            timeInRange: calculateTimeInRange()
+        )
+    }
+
+    // Update Mock Data Generation
+    private func generateAdditionalMockData() {
+        exerciseData = generateExerciseData()
+        mealData = generateMealData()
+        notificationEvents = (0..<3).map { _ in
+            NotificationEvent(
+                date: Date().addingTimeInterval(Double.random(in: -24 * 60 * 60 ... 0)),
+                type: ["High Glucose Alert", "Low Glucose Alert"].randomElement()!,
+                message: "Glucose out of range!",
+                acknowledged: Bool.random()
+            )
+        }
+        connectedDevices = [
+            DeviceData(deviceName: "Dexcom G6", batteryLevel: Double.random(in: 20...100), lastSyncDate: Date(), status: "Connected"),
+            DeviceData(deviceName: "OmniPod", batteryLevel: Double.random(in: 10...100), lastSyncDate: Date().addingTimeInterval(-3 * 60 * 60), status: "Disconnected")
+        ]
+        glucoseTrends = [
+            generateTrend(period: "Last 7 Days", days: 7),
+            generateTrend(period: "Last 24 Hours", days: 1)
+        ]
+    }
+
+
 
     // MARK: - Mock Data Generation
     private func generateMockData() {
@@ -149,56 +209,6 @@ class DiabetesDataStore: ObservableObject {
         sortAllData()
     }
 
-    private func generateAdditionalMockData() {
-        // Exercise Data
-        exerciseData = (0..<10).map {
-            ExerciseDataPoint(
-                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
-                type: ["Walking", "Running", "Yoga"].randomElement()!,
-                durationInMinutes: Int.random(in: 15...90),
-                intensity: ["Low", "Moderate", "High"].randomElement()!
-            )
-        }
-
-        // Meal Data
-        mealData = (0..<5).map {
-            MealDataPoint(
-                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
-                mealType: ["Breakfast", "Lunch", "Dinner", "Snack"].randomElement()!,
-                description: ["Oatmeal", "Grilled Chicken", "Salad"].randomElement()!,
-                carbs: Double.random(in: 20...80)
-            )
-        }
-
-        // Notifications
-        notificationEvents = (0..<3).map {
-            NotificationEvent(
-                date: Date().addingTimeInterval(Double.random(in: -24 * 60 * 60 ... 0)),
-                type: ["High Glucose Alert", "Low Glucose Alert"].randomElement()!,
-                message: "Glucose out of range!",
-                acknowledged: Bool.random()
-            )
-        }
-
-        // Connected Devices
-        connectedDevices = [
-            DeviceData(deviceName: "Dexcom G6", batteryLevel: Double.random(in: 20...100), lastSyncDate: Date(), status: "Connected"),
-            DeviceData(deviceName: "OmniPod", batteryLevel: Double.random(in: 10...100), lastSyncDate: Date().addingTimeInterval(-3 * 60 * 60), status: "Disconnected")
-        ]
-
-        // Glucose Trends
-        let averageGlucose = glucoseData.map(\.level).reduce(0, +) / Double(glucoseData.count)
-        glucoseTrends = [
-            GlucoseTrend(
-                period: "Last 7 Days",
-                averageGlucose: averageGlucose,
-                highestGlucose: glucoseData.map(\.level).max() ?? 0.0,
-                lowestGlucose: glucoseData.map(\.level).min() ?? 0.0,
-                timeInRange: calculateTimeInRange()
-            )
-        ]
-    }
-
     private func sortAllData() {
         glucoseData.sort(by: { $0.date < $1.date })
         predictedGlucoseData.sort(by: { $0.date < $1.date })
@@ -211,14 +221,51 @@ class DiabetesDataStore: ObservableObject {
         let inRange = glucoseData.filter { $0.level >= 4.0 && $0.level <= 10.0 }
         return (Double(inRange.count) / Double(glucoseData.count)) * 100.0
     }
+}
 
-    // MARK: - Shuffle Data for Testing
+// MARK: - Shuffle Data for Testing
+extension DiabetesDataStore {
+    /// Randomize only the numeric fields (levels, units, etc.), keep dates sorted.
     func shuffleAllData() {
-        // Shuffle core data values
+        // Glucose
         for i in glucoseData.indices {
             glucoseData[i].level = Double.random(in: 4.5...9.5)
         }
-        // Shuffle additional data if needed
-        generateAdditionalMockData()
+
+        // Predicted glucose
+        for i in predictedGlucoseData.indices {
+            predictedGlucoseData[i].predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
+        }
+
+        // Active insulin
+        for i in activeInsulinData.indices {
+            activeInsulinData[i].units = Double.random(in: 0.0...1.0)
+        }
+
+        // Insulin delivery
+        for i in insulinDeliveryData.indices {
+            insulinDeliveryData[i].deliveredUnits = Double.random(in: 0.0...1.5)
+        }
+
+        // Carbs
+        for i in carbData.indices {
+            carbData[i].grams = Double.random(in: 0.0...25.0)
+        }
+
+        // New: Randomized exercise data (if applicable)
+        let exerciseData: [ExerciseDataPoint] = generateExerciseData()
+        
+        // (Assume you store this exercise data in a published property if needed)
+
+        // New: Randomized meal data (if applicable)
+        let mealData: [MealDataPoint] = generateMealData()
+
+        // Randomize top-level summary fields
+        currentGlucose = Double.random(in: 4.5...9.5)
+        predictedGlucose = Double.random(in: 4.5...9.5)
+        activeInsulin = Double.random(in: 0.0...2.0)
+        carbsOnBoard = Double.random(in: 0.0...30.0)
+        lastUpdate = Date()
     }
 }
+
