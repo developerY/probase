@@ -11,7 +11,7 @@ struct GlucoseChartView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
 
     var body: some View {
-    
+        
             Chart {
                 // Use the entire 7 days or filter to last 24 hours if you want
                 ForEach(dataStore.glucoseData) { point in
@@ -37,6 +37,7 @@ struct GlucoseChartView: View {
             }
             .frame(height: 300)
             .padding()
-    
+       
     }
 }
+

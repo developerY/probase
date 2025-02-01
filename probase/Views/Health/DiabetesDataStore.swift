@@ -141,3 +141,79 @@ extension DiabetesDataStore {
         lastUpdate = Date()
     }
 }
+
+struct UserProfile {
+    let id: UUID = UUID()
+    var name: String
+    var age: Int
+    var typeOfDiabetes: String // e.g., Type 1, Type 2, Gestational
+    var targetRange: (min: Double, max: Double) // e.g., (4.0, 10.0)
+}
+
+
+struct MedicationDataPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    var medicationName: String
+    var dosage: String // e.g., "500 mg"
+}
+
+struct ExerciseDataPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    var type: String // e.g., "Walking", "Running"
+    var durationInMinutes: Int
+    var intensity: String // e.g., "Low", "Moderate", "High"
+}
+
+struct TimeInRangeSummary {
+    let date: Date
+    var timeInRange: Double // Percentage (e.g., 75.0%)
+    var hypoEvents: Int // Number of low glucose events
+    var hyperEvents: Int // Number of high glucose events
+}
+
+struct MealDataPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    var mealType: String // e.g., "Breakfast", "Snack"
+    var description: String // e.g., "Oatmeal with fruit"
+    var carbs: Double // Carbohydrate amount in grams
+}
+
+struct NotificationEvent: Identifiable {
+    let id = UUID()
+    let date: Date
+    var type: String // e.g., "High Glucose Alert"
+    var message: String
+    var acknowledged: Bool
+}
+
+struct DeviceData {
+    let deviceName: String // e.g., "Dexcom G6", "OmniPod"
+    var batteryLevel: Double? // Optional: e.g., 80.0%
+    var lastSyncDate: Date?
+}
+
+
+struct GlucoseTrend {
+    let period: String // e.g., "Last 7 Days"
+    var averageGlucose: Double
+    var highestGlucose: Double
+    var lowestGlucose: Double
+    var timeInRange: Double // Percentage
+}
+
+struct EventLogEntry: Identifiable {
+    let id = UUID()
+    let date: Date
+    var eventType: String // e.g., "Glucose Check", "Insulin Dose"
+    var description: String
+}
+
+struct CGMSensorReading: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    var glucoseLevel: Double
+    var trendArrow: String? // e.g., "↑", "↓", "→"
+}
