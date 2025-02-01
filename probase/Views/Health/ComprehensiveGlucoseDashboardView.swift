@@ -10,7 +10,7 @@ import Charts
 struct ComprehensiveGlucoseDashboardView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
     
-    // MARK: - Accordion States
+    // Accordion states
     @State private var isGlucoseExpanded = true
     @State private var isActiveInsulinExpanded = true
     @State private var isInsulinDeliveryExpanded = true
@@ -20,88 +20,87 @@ struct ComprehensiveGlucoseDashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    
-                    // MARK: - HEADER
+                    // HEADER
                     headerSection
                     
-                    // MARK: - GLUCOSE
+                    // ACCORDION SECTIONS
                     glucoseSection
-                    
-                    // MARK: - ACTIVE INSULIN
                     activeInsulinSection
-                    
-                    // MARK: - INSULIN DELIVERY
                     insulinDeliverySection
-                    
-                    // MARK: - CARBS
                     carbSection
                 }
                 .padding(.vertical, 8)
             }
             .navigationTitle("Glucose Dashboard")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Randomize button to shuffle data & see animations
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Randomize") {
+                        withAnimation(.easeInOut) {
+                            dataStore.shuffleAllData()
+                        }
+                    }
+                }
+            }
         }
     }
     
     // MARK: - HEADER
     private var headerSection: some View {
-        VStack {
-            HStack(alignment: .center, spacing: 16) {
-                Circle()
-                    .trim(from: 0, to: 1)
-                    .stroke(Color.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .frame(width: 50, height: 50)
-                    .overlay(
-                        Text(timeAgoString())
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
-                        .font(.title)
-                        .bold()
-                    Text("Eventually \(String(format: "%.1f", dataStore.predictedGlucose)) mmol/L")
-                        .font(.subheadline)
-                        .foregroundColor(.orange)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .leading) {
-                    Text("+\(String(format: "%.2f", dataStore.activeInsulin)) U")
-                        .font(.headline)
-                        .foregroundColor(.yellow)
-                    Text("Active Insulin")
-                        .font(.caption)
+        HStack(alignment: .center, spacing: 16) {
+            Circle()
+                .trim(from: 0, to: 1)
+                .stroke(Color.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .frame(width: 50, height: 50)
+                .overlay(
+                    Text(timeAgoString())
+                        .font(.caption2)
                         .foregroundColor(.secondary)
-                    
-                    Text("\(String(format: "%.0f", dataStore.carbsOnBoard)) g")
-                        .font(.headline)
-                        .foregroundColor(.green)
-                    Text("Active Carbs")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                )
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
+                    .font(.title)
+                    .bold()
+                
+                Text("Eventually \(String(format: "%.1f", dataStore.predictedGlucose)) mmol/L")
+                    .font(.subheadline)
+                    .foregroundColor(.orange)
             }
-            .padding(.horizontal)
+            
+            Spacer()
+            
+            VStack(alignment: .leading) {
+                Text("+\(String(format: "%.2f", dataStore.activeInsulin)) U")
+                    .font(.headline)
+                    .foregroundColor(.yellow)
+                Text("Active Insulin")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text("\(String(format: "%.0f", dataStore.carbsOnBoard)) g")
+                    .font(.headline)
+                    .foregroundColor(.green)
+                Text("Active Carbs")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
+        .padding(.horizontal)
     }
     
     // MARK: - GLUCOSE SECTION
     private var glucoseSection: some View {
         VStack(spacing: 0) {
-            // Accordion header
             accordionHeader(
                 title: "Glucose",
                 backgroundColor: .blue,
                 isExpanded: $isGlucoseExpanded
             )
-            // Show/hide the chart
             if isGlucoseExpanded {
-                // Subview for the chart
                 GlucoseChartView()
-                    .transition(.slide)
+                    .transition(.slide)              // Animate show/hide of the chart
                     .environmentObject(dataStore)
             }
         }
@@ -155,7 +154,7 @@ struct ComprehensiveGlucoseDashboardView: View {
         }
     }
     
-    // MARK: - ACCORDION HEADER HELPER
+    // MARK: - ACCORDION HEADER
     private func accordionHeader(
         title: String,
         backgroundColor: Color,
@@ -174,6 +173,7 @@ struct ComprehensiveGlucoseDashboardView: View {
         .background(backgroundColor)
         .cornerRadius(4)
         .onTapGesture {
+            // Animate the expand/collapse
             withAnimation(.easeInOut) {
                 isExpanded.wrappedValue.toggle()
             }
@@ -188,9 +188,6 @@ struct ComprehensiveGlucoseDashboardView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
-
-
-
 
 struct ComprehensiveGlucoseDashboardView_Previews: PreviewProvider {
     static var previews: some View {

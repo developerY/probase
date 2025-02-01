@@ -12,7 +12,7 @@ struct InsulinDeliveryChartView: View {
     
     var body: some View {
         Group {
-            if #available(iOS 16.0, *) {
+           
                 Chart {
                     ForEach(dataStore.insulinDeliveryData) { point in
                         BarMark(
@@ -22,11 +22,11 @@ struct InsulinDeliveryChartView: View {
                         .foregroundStyle(.yellow)
                     }
                 }
+                .chartScrollableAxes(.horizontal)
+                //.chartZoom(.automatic)
                 .frame(height: 120)
                 .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
-            }
+           
         }
     }
 }

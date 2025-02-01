@@ -12,7 +12,7 @@ struct CarbsChartView: View {
     
     var body: some View {
         Group {
-            if #available(iOS 16.0, *) {
+          
                 Chart {
                     ForEach(dataStore.carbData) { point in
                         LineMark(
@@ -23,11 +23,11 @@ struct CarbsChartView: View {
                         .interpolationMethod(.monotone)
                     }
                 }
+                .chartScrollableAxes(.horizontal)
+                //.chartZoom(.)
                 .frame(height: 120)
                 .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
-            }
+           
         }
     }
 }
