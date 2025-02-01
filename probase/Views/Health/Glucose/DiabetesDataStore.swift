@@ -1,16 +1,10 @@
-//
-//  DiabetesDataStore.swift
-//  probase
-//
-//  Created by Siamak Ashrafi on 1/31/25.
-//
 import SwiftUI
 
 // MARK: - Data Models
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var level: Double // e.g., mmol/L
+    var level: Double
 }
 
 struct PredictedGlucoseDataPoint: Identifiable {
@@ -40,15 +34,15 @@ struct CarbDataPoint: Identifiable {
 struct ExerciseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var type: String // e.g., "Walking", "Running"
+    var type: String
     var durationInMinutes: Int
-    var intensity: String // e.g., "Low", "Moderate", "High"
+    var intensity: String
 }
 
 struct MealDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var mealType: String // e.g., "Breakfast", "Snack"
+    var mealType: String
     var description: String
     var carbs: Double
 }
@@ -56,7 +50,7 @@ struct MealDataPoint: Identifiable {
 struct NotificationEvent: Identifiable {
     let id = UUID()
     let date: Date
-    var type: String // e.g., "High Glucose Alert"
+    var type: String
     var message: String
     var acknowledged: Bool
 }
@@ -64,13 +58,13 @@ struct NotificationEvent: Identifiable {
 struct DeviceData: Identifiable {
     let id = UUID()
     var deviceName: String
-    var batteryLevel: Double? // e.g., 80.0%
+    var batteryLevel: Double?
     var lastSyncDate: Date?
-    var status: String // e.g., "Connected", "Disconnected"
+    var status: String
 }
 
 struct GlucoseTrend {
-    let period: String // e.g., "Last 7 Days"
+    let period: String
     var averageGlucose: Double
     var highestGlucose: Double
     var lowestGlucose: Double
@@ -78,10 +72,10 @@ struct GlucoseTrend {
 }
 
 struct UserProfile {
-    let id: UUID = UUID()
+    let id = UUID()
     var name: String
     var age: Int
-    var typeOfDiabetes: String // e.g., "Type 1", "Type 2"
+    var typeOfDiabetes: String
     var targetRange: (min: Double, max: Double)
 }
 
@@ -113,8 +107,8 @@ class DiabetesDataStore: ObservableObject {
         generateMockData()
         generateAdditionalMockData()
     }
-    
-    // Helper Methods for Data Generation
+
+    // MARK: - Helper Methods for Mock Data
     private func generateExerciseData() -> [ExerciseDataPoint] {
         (0..<10).map { _ in
             ExerciseDataPoint(
@@ -137,6 +131,17 @@ class DiabetesDataStore: ObservableObject {
         }
     }
 
+    private func generateNotificationEvents() -> [NotificationEvent] {
+        (0..<3).map { _ in
+            NotificationEvent(
+                date: Date().addingTimeInterval(Double.random(in: -24 * 60 * 60 ... 0)),
+                type: ["High Glucose Alert", "Low Glucose Alert"].randomElement()!,
+                message: "Glucose out of range!",
+                acknowledged: Bool.random()
+            )
+        }
+    }
+
     private func generateTrend(period: String, days: Int) -> GlucoseTrend {
         let filteredData = glucoseData.filter { $0.date > Date().addingTimeInterval(-Double(days * 24 * 60 * 60)) }
         let avgGlucose = filteredData.map(\.level).reduce(0, +) / Double(filteredData.count)
@@ -149,30 +154,6 @@ class DiabetesDataStore: ObservableObject {
         )
     }
 
-    // Update Mock Data Generation
-    private func generateAdditionalMockData() {
-        exerciseData = generateExerciseData()
-        mealData = generateMealData()
-        notificationEvents = (0..<3).map { _ in
-            NotificationEvent(
-                date: Date().addingTimeInterval(Double.random(in: -24 * 60 * 60 ... 0)),
-                type: ["High Glucose Alert", "Low Glucose Alert"].randomElement()!,
-                message: "Glucose out of range!",
-                acknowledged: Bool.random()
-            )
-        }
-        connectedDevices = [
-            DeviceData(deviceName: "Dexcom G6", batteryLevel: Double.random(in: 20...100), lastSyncDate: Date(), status: "Connected"),
-            DeviceData(deviceName: "OmniPod", batteryLevel: Double.random(in: 10...100), lastSyncDate: Date().addingTimeInterval(-3 * 60 * 60), status: "Disconnected")
-        ]
-        glucoseTrends = [
-            generateTrend(period: "Last 7 Days", days: 7),
-            generateTrend(period: "Last 24 Hours", days: 1)
-        ]
-    }
-
-
-
     // MARK: - Mock Data Generation
     private func generateMockData() {
         let now = Date()
@@ -183,10 +164,7 @@ class DiabetesDataStore: ObservableObject {
             let offset = TimeInterval(-15 * 60 * i)
             let date = now.addingTimeInterval(offset)
 
-            // Glucose Data
             glucoseData.append(GlucoseDataPoint(date: date, level: Double.random(in: 4.5...9.5)))
-
-            // Predicted Glucose (for the first 3 hours)
             if i < 12 {
                 predictedGlucoseData.append(
                     PredictedGlucoseDataPoint(
@@ -195,18 +173,27 @@ class DiabetesDataStore: ObservableObject {
                     )
                 )
             }
-
-            // Insulin and Carb Data
             activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: Double.random(in: 0.0...1.0)))
             insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: Double.random(in: 0.0...1.5)))
             carbData.append(CarbDataPoint(date: date, grams: Double.random(in: 0.0...25.0)))
         }
 
-        // Generate Mock Data for Other Features
         generateAdditionalMockData()
-
-        // Sort all data
         sortAllData()
+    }
+
+    private func generateAdditionalMockData() {
+        exerciseData = generateExerciseData()
+        mealData = generateMealData()
+        notificationEvents = generateNotificationEvents()
+        connectedDevices = [
+            DeviceData(deviceName: "Dexcom G6", batteryLevel: Double.random(in: 20...100), lastSyncDate: Date(), status: "Connected"),
+            DeviceData(deviceName: "OmniPod", batteryLevel: Double.random(in: 10...100), lastSyncDate: Date().addingTimeInterval(-3 * 60 * 60), status: "Disconnected")
+        ]
+        glucoseTrends = [
+            generateTrend(period: "Last 7 Days", days: 7),
+            generateTrend(period: "Last 24 Hours", days: 1)
+        ]
     }
 
     private func sortAllData() {
@@ -221,46 +208,31 @@ class DiabetesDataStore: ObservableObject {
         let inRange = glucoseData.filter { $0.level >= 4.0 && $0.level <= 10.0 }
         return (Double(inRange.count) / Double(glucoseData.count)) * 100.0
     }
-}
 
-// MARK: - Shuffle Data for Testing
-extension DiabetesDataStore {
-    /// Randomize only the numeric fields (levels, units, etc.), keep dates sorted.
+    // MARK: - Shuffle Data for Testing
     func shuffleAllData() {
-        // Glucose
         for i in glucoseData.indices {
             glucoseData[i].level = Double.random(in: 4.5...9.5)
         }
 
-        // Predicted glucose
         for i in predictedGlucoseData.indices {
             predictedGlucoseData[i].predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
         }
 
-        // Active insulin
         for i in activeInsulinData.indices {
             activeInsulinData[i].units = Double.random(in: 0.0...1.0)
         }
 
-        // Insulin delivery
         for i in insulinDeliveryData.indices {
             insulinDeliveryData[i].deliveredUnits = Double.random(in: 0.0...1.5)
         }
 
-        // Carbs
         for i in carbData.indices {
             carbData[i].grams = Double.random(in: 0.0...25.0)
         }
 
-        // New: Randomized exercise data (if applicable)
-        let exerciseData: [ExerciseDataPoint] = generateExerciseData()
-        
-        // (Assume you store this exercise data in a published property if needed)
-
-        // New: Randomized meal data (if applicable)
-        let mealData: [MealDataPoint] = generateMealData()
-
-        // Randomize top-level summary fields
+        exerciseData = generateExerciseData()
+        mealData = generateMealData()
         currentGlucose = Double.random(in: 4.5...9.5)
         predictedGlucose = Double.random(in: 4.5...9.5)
         activeInsulin = Double.random(in: 0.0...2.0)
@@ -268,4 +240,3 @@ extension DiabetesDataStore {
         lastUpdate = Date()
     }
 }
-
