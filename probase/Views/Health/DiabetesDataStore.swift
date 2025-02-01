@@ -1,5 +1,5 @@
 //
-//  GlucoseDataPoint.swift
+//  DiabetesDataStore.swift
 //  probase
 //
 //  Created by Siamak Ashrafi on 1/31/25.
@@ -11,7 +11,7 @@ import Charts
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    let level: Double         // e.g. 5.8 (mmol/L)
+    let level: Double // e.g., 5.8 mmol/L
 }
 
 /// Represents a predicted glucose data point
@@ -25,7 +25,7 @@ struct PredictedGlucoseDataPoint: Identifiable {
 struct ActiveInsulinDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    let units: Double         // e.g. 0.13 U
+    let units: Double // e.g. 0.13 U
 }
 
 /// Represents insulin delivery over time
@@ -51,10 +51,10 @@ class DiabetesDataStore: ObservableObject {
     @Published var carbData: [CarbDataPoint] = []
 
     // For display at the top of the screen
-    @Published var lastUpdate: Date? = nil
-    @Published var currentGlucose: Double = 0.0
-    @Published var predictedGlucose: Double = 0.0
-    @Published var activeInsulin: Double = 0.0
+    @Published var lastUpdate: Date?
+    @Published var currentGlucose: Double = 5.8
+    @Published var predictedGlucose: Double = 5.5
+    @Published var activeInsulin: Double = 0.13
     @Published var insulinOnBoard: Double = 0.0
     @Published var carbsOnBoard: Double = 0.0
 
@@ -66,21 +66,18 @@ class DiabetesDataStore: ObservableObject {
     private func generateMockData() {
         let now = Date()
         lastUpdate = now
-        currentGlucose = 5.8    // mmol/L
-        predictedGlucose = 5.5
-        activeInsulin = 0.13
-        insulinOnBoard = 0.0
-        carbsOnBoard = 0.0
 
         // Generate 8 hours of data, every 15 minutes
         for i in 0..<32 {
             let offset = TimeInterval(-15 * 60 * i)
             let date = now.addingTimeInterval(offset)
 
+            // Random-ish glucose
             let glucoseLevel = Double.random(in: 4.5...9.5)
             glucoseData.append(GlucoseDataPoint(date: date, level: glucoseLevel))
 
-            if i < 12 { // Predicted for next 3 hours
+            // Random predicted values for next 3 hours
+            if i < 12 {
                 let predictedDate = now.addingTimeInterval(TimeInterval(15 * 60 * i))
                 let predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
                 predictedGlucoseData.append(
@@ -88,13 +85,15 @@ class DiabetesDataStore: ObservableObject {
                 )
             }
 
-            // Simulate active insulin and deliveries
+            // Simulate active insulin
             let active = Double.random(in: 0.0...1.0)
             activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: active))
 
+            // Simulate insulin delivery
             let delivered = Double.random(in: 0.0...1.5)
             insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: delivered))
 
+            // Simulate carbs
             let carbs = Double.random(in: 0.0...25.0)
             carbData.append(CarbDataPoint(date: date, grams: carbs))
         }

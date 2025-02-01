@@ -5,77 +5,41 @@
 //  Created by Siamak Ashrafi on 1/31/25.
 //
 import SwiftUI
-import SwiftData
-import Charts
-
-import SwiftUI
 import Charts
 
 struct ComprehensiveGlucoseDashboardView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
     
-    // MARK: - Chart Visibility States
-    @State private var showGlucoseChart = true
-    @State private var showActiveInsulinChart = true
-    @State private var showInsulinDeliveryChart = true
-    @State private var showCarbsChart = true
-    
-    // MARK: - Customization Sheet
-    @State private var showingCustomizationSheet = false
+    // MARK: - Accordion States
+    @State private var isGlucoseExpanded = true
+    @State private var isActiveInsulinExpanded = true
+    @State private var isInsulinDeliveryExpanded = true
+    @State private var isCarbsExpanded = true
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
                     
-                    // MARK: - HEADER (Key Info)
+                    // MARK: - HEADER
                     headerSection
                     
-                    // MARK: - GLUCOSE CHART
-                    if showGlucoseChart {
-                        glucoseSection
-                            .transition(.slide)       // Animate appear/disappear
-                    }
-
-                    // MARK: - ACTIVE INSULIN CHART
-                    if showActiveInsulinChart {
-                        activeInsulinSection
-                            .transition(.slide)
-                    }
+                    // MARK: - GLUCOSE
+                    glucoseSection
                     
-                    // MARK: - INSULIN DELIVERY CHART
-                    if showInsulinDeliveryChart {
-                        insulinDeliverySection
-                            .transition(.slide)
-                    }
+                    // MARK: - ACTIVE INSULIN
+                    activeInsulinSection
                     
-                    // MARK: - ACTIVE CARBS CHART
-                    if showCarbsChart {
-                        carbSection
-                            .transition(.slide)
-                    }
+                    // MARK: - INSULIN DELIVERY
+                    insulinDeliverySection
+                    
+                    // MARK: - CARBS
+                    carbSection
                 }
                 .padding(.vertical, 8)
-                .animation(.easeInOut, value: showGlucoseChart)
-                .animation(.easeInOut, value: showActiveInsulinChart)
-                .animation(.easeInOut, value: showInsulinDeliveryChart)
-                .animation(.easeInOut, value: showCarbsChart)
             }
             .navigationTitle("Glucose Dashboard")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                // Button to open the "Customize" sheet
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingCustomizationSheet.toggle()
-                    } label: {
-                        Image(systemName: "slider.horizontal.3")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingCustomizationSheet) {
-                customizeDashboardSheet
-            }
         }
     }
     
@@ -83,7 +47,6 @@ struct ComprehensiveGlucoseDashboardView: View {
     private var headerSection: some View {
         VStack {
             HStack(alignment: .center, spacing: 16) {
-                // Circle or ring to indicate recency
                 Circle()
                     .trim(from: 0, to: 1)
                     .stroke(Color.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))
@@ -105,7 +68,6 @@ struct ComprehensiveGlucoseDashboardView: View {
                 
                 Spacer()
                 
-                // Pod Age or insulin on board
                 VStack(alignment: .leading) {
                     Text("+\(String(format: "%.2f", dataStore.activeInsulin)) U")
                         .font(.headline)
@@ -127,191 +89,98 @@ struct ComprehensiveGlucoseDashboardView: View {
     }
     
     // MARK: - GLUCOSE SECTION
-    @ViewBuilder
     private var glucoseSection: some View {
-        Section {
-            if #available(iOS 16.0, *) {
-                Chart {
-                    // Historical glucose line
-                    ForEach(dataStore.glucoseData) { point in
-                        LineMark(
-                            x: .value("Time", point.date),
-                            y: .value("Glucose (mmol/L)", point.level)
-                        )
-                        .foregroundStyle(.blue)
-                        
-                        PointMark(
-                            x: .value("Time", point.date),
-                            y: .value("Glucose (mmol/L)", point.level)
-                        )
-                        .symbol(.circle)
-                        .symbolSize(20)
-                        .foregroundStyle(.blue)
-                    }
-                    
-                    // Predicted glucose line (dashed)
-                    ForEach(dataStore.predictedGlucoseData) { pred in
-                        LineMark(
-                            x: .value("Time", pred.date),
-                            y: .value("Predicted (mmol/L)", pred.predictedLevel)
-                        )
-                        .foregroundStyle(.orange)
-                        .interpolationMethod(.monotone)
-                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [4,4]))
-                        
-                        PointMark(
-                            x: .value("Time", pred.date),
-                            y: .value("Predicted (mmol/L)", pred.predictedLevel)
-                        )
-                        .symbol(.diamond)
-                        .symbolSize(15)
-                        .foregroundStyle(.orange)
-                    }
-                }
-                .chartXAxis {
-                    AxisMarks(values: .automatic) { _ in
-                        AxisGridLine()
-                        AxisValueLabel(format: .dateTime.hour().minute())
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(values: .automatic) { _ in
-                        AxisGridLine()
-                        AxisValueLabel(format: Decimal.FormatStyle())//.number.precision(.fractionLength(1)))
-                    }
-                }
-                .frame(height: 200)
-                .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
+        VStack(spacing: 0) {
+            // Accordion header
+            accordionHeader(
+                title: "Glucose",
+                backgroundColor: .blue,
+                isExpanded: $isGlucoseExpanded
+            )
+            // Show/hide the chart
+            if isGlucoseExpanded {
+                // Subview for the chart
+                GlucoseChartView()
+                    .transition(.slide)
+                    .environmentObject(dataStore)
             }
-        } header: {
-            Text("Glucose")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(4)
-                .background(Color.blue)
-                .cornerRadius(4)
         }
     }
     
     // MARK: - ACTIVE INSULIN SECTION
-    @ViewBuilder
     private var activeInsulinSection: some View {
-        Section {
-            if #available(iOS 16.0, *) {
-                Chart {
-                    ForEach(dataStore.activeInsulinData) { point in
-                        AreaMark(
-                            x: .value("Time", point.date),
-                            y: .value("Active Insulin", point.units)
-                        )
-                        .foregroundStyle(
-                            .linearGradient(
-                                colors: [.orange.opacity(0.8), .orange.opacity(0.2)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    }
-                }
-                .frame(height: 120)
-                .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
+        VStack(spacing: 0) {
+            accordionHeader(
+                title: "Active Insulin",
+                backgroundColor: .orange,
+                isExpanded: $isActiveInsulinExpanded
+            )
+            if isActiveInsulinExpanded {
+                ActiveInsulinChartView()
+                    .transition(.slide)
+                    .environmentObject(dataStore)
             }
-        } header: {
-            Text("Active Insulin")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(4)
-                .background(Color.orange)
-                .cornerRadius(4)
         }
     }
     
     // MARK: - INSULIN DELIVERY SECTION
-    @ViewBuilder
     private var insulinDeliverySection: some View {
-        Section {
-            if #available(iOS 16.0, *) {
-                Chart {
-                    ForEach(dataStore.insulinDeliveryData) { point in
-                        BarMark(
-                            x: .value("Time", point.date),
-                            y: .value("Delivered (U)", point.deliveredUnits)
-                        )
-                        .foregroundStyle(.yellow)
-                    }
-                }
-                .frame(height: 120)
-                .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
+        VStack(spacing: 0) {
+            accordionHeader(
+                title: "Insulin Delivery",
+                backgroundColor: .yellow,
+                isExpanded: $isInsulinDeliveryExpanded
+            )
+            if isInsulinDeliveryExpanded {
+                InsulinDeliveryChartView()
+                    .transition(.slide)
+                    .environmentObject(dataStore)
             }
-        } header: {
-            Text("Insulin Delivery")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(4)
-                .background(Color.yellow)
-                .cornerRadius(4)
         }
     }
     
-    // MARK: - ACTIVE CARBS SECTION
-    @ViewBuilder
+    // MARK: - CARBS SECTION
     private var carbSection: some View {
-        Section {
-            if #available(iOS 16.0, *) {
-                Chart {
-                    ForEach(dataStore.carbData) { point in
-                        LineMark(
-                            x: .value("Time", point.date),
-                            y: .value("Carbs (g)", point.grams)
-                        )
-                        .foregroundStyle(.green)
-                        .interpolationMethod(.monotone)
-                    }
-                }
-                .frame(height: 120)
-                .padding()
-            } else {
-                Text("Charts require iOS 16 or newer.")
+        VStack(spacing: 0) {
+            accordionHeader(
+                title: "Active Carbohydrates",
+                backgroundColor: .green,
+                isExpanded: $isCarbsExpanded
+            )
+            if isCarbsExpanded {
+                CarbsChartView()
+                    .transition(.slide)
+                    .environmentObject(dataStore)
             }
-        } header: {
-            Text("Active Carbohydrates")
+        }
+    }
+    
+    // MARK: - ACCORDION HEADER HELPER
+    private func accordionHeader(
+        title: String,
+        backgroundColor: Color,
+        isExpanded: Binding<Bool>
+    ) -> some View {
+        HStack {
+            Text(title)
                 .font(.headline)
                 .foregroundColor(.white)
-                .padding(4)
-                .background(Color.green)
-                .cornerRadius(4)
+            Spacer()
+            Image(systemName: "chevron.down")
+                .foregroundColor(.white)
+                .rotationEffect(Angle(degrees: isExpanded.wrappedValue ? 0 : -90))
         }
-    }
-    
-    // MARK: - CUSTOMIZATION SHEET
-    private var customizeDashboardSheet: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Charts to Display")) {
-                    Toggle("Glucose Chart", isOn: $showGlucoseChart)
-                    Toggle("Active Insulin", isOn: $showActiveInsulinChart)
-                    Toggle("Insulin Delivery", isOn: $showInsulinDeliveryChart)
-                    Toggle("Carbohydrates", isOn: $showCarbsChart)
-                }
-            }
-            .navigationTitle("Customize Dashboard")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        showingCustomizationSheet = false
-                    }
-                }
+        .padding(8)
+        .background(backgroundColor)
+        .cornerRadius(4)
+        .onTapGesture {
+            withAnimation(.easeInOut) {
+                isExpanded.wrappedValue.toggle()
             }
         }
     }
     
-    // MARK: - UTILITY
+    // MARK: - Utility
     private func timeAgoString() -> String {
         guard let date = dataStore.lastUpdate else { return "--" }
         let formatter = RelativeDateTimeFormatter()
@@ -319,6 +188,9 @@ struct ComprehensiveGlucoseDashboardView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
+
+
+
 
 struct ComprehensiveGlucoseDashboardView_Previews: PreviewProvider {
     static var previews: some View {
