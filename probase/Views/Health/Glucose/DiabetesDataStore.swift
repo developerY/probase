@@ -5,7 +5,6 @@
 //  Created by Siamak Ashrafi on 1/31/25.
 //
 import SwiftUI
-import Charts
 
 // MARK: - Data Models
 struct GlucoseDataPoint: Identifiable {
@@ -38,15 +37,71 @@ struct CarbDataPoint: Identifiable {
     var grams: Double
 }
 
-/// Mock data store managing all diabetes-related data
+struct ExerciseDataPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    var type: String // e.g., "Walking", "Running"
+    var durationInMinutes: Int
+    var intensity: String // e.g., "Low", "Moderate", "High"
+}
+
+struct MealDataPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    var mealType: String // e.g., "Breakfast", "Snack"
+    var description: String
+    var carbs: Double
+}
+
+struct NotificationEvent: Identifiable {
+    let id = UUID()
+    let date: Date
+    var type: String // e.g., "High Glucose Alert"
+    var message: String
+    var acknowledged: Bool
+}
+
+struct DeviceData: Identifiable {
+    let id = UUID()
+    var deviceName: String
+    var batteryLevel: Double? // e.g., 80.0%
+    var lastSyncDate: Date?
+    var status: String // e.g., "Connected", "Disconnected"
+}
+
+struct GlucoseTrend {
+    let period: String // e.g., "Last 7 Days"
+    var averageGlucose: Double
+    var highestGlucose: Double
+    var lowestGlucose: Double
+    var timeInRange: Double
+}
+
+struct UserProfile {
+    let id: UUID = UUID()
+    var name: String
+    var age: Int
+    var typeOfDiabetes: String // e.g., "Type 1", "Type 2"
+    var targetRange: (min: Double, max: Double)
+}
+
+// MARK: - Diabetes Data Store
 class DiabetesDataStore: ObservableObject {
+    // Core Data
     @Published var glucoseData: [GlucoseDataPoint] = []
     @Published var predictedGlucoseData: [PredictedGlucoseDataPoint] = []
     @Published var activeInsulinData: [ActiveInsulinDataPoint] = []
     @Published var insulinDeliveryData: [InsulinDeliveryDataPoint] = []
     @Published var carbData: [CarbDataPoint] = []
 
-    // For display at the top of the screen
+    // Additional Features
+    @Published var exerciseData: [ExerciseDataPoint] = []
+    @Published var mealData: [MealDataPoint] = []
+    @Published var notificationEvents: [NotificationEvent] = []
+    @Published var connectedDevices: [DeviceData] = []
+    @Published var glucoseTrends: [GlucoseTrend] = []
+
+    // Top-Level Display Data
     @Published var lastUpdate: Date?
     @Published var currentGlucose: Double = 5.8
     @Published var predictedGlucose: Double = 5.5
@@ -58,182 +113,112 @@ class DiabetesDataStore: ObservableObject {
         generateMockData()
     }
 
-    /// Populates the store with 7 days of data, every 15 minutes
+    // MARK: - Mock Data Generation
     private func generateMockData() {
         let now = Date()
         lastUpdate = now
 
-        // 7 days * 24 hours/day * 4 intervals/hour = 672 data points
+        // Generate 7 days of data, every 15 minutes
         for i in 0..<(7 * 24 * 4) {
-            // Each increment goes 15 minutes further into the past
             let offset = TimeInterval(-15 * 60 * i)
             let date = now.addingTimeInterval(offset)
 
-            // Random-ish glucose reading
-            let glucoseLevel = Double.random(in: 4.5...9.5)
-            glucoseData.append(GlucoseDataPoint(date: date, level: glucoseLevel))
+            // Glucose Data
+            glucoseData.append(GlucoseDataPoint(date: date, level: Double.random(in: 4.5...9.5)))
 
-            // Random predicted values for the first 3 hours (12 intervals)
+            // Predicted Glucose (for the first 3 hours)
             if i < 12 {
-                let futureDate = now.addingTimeInterval(TimeInterval(15 * 60 * i))
-                let predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
                 predictedGlucoseData.append(
-                    PredictedGlucoseDataPoint(date: futureDate, predictedLevel: predictedLevel)
+                    PredictedGlucoseDataPoint(
+                        date: now.addingTimeInterval(TimeInterval(15 * 60 * i)),
+                        predictedLevel: 5.0 + Double.random(in: -0.5...0.5)
+                    )
                 )
             }
 
-            // Simulated active insulin
-            let active = Double.random(in: 0.0...1.0)
-            activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: active))
-
-            // Simulated insulin delivery
-            let delivered = Double.random(in: 0.0...1.5)
-            insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: delivered))
-
-            // Simulated carbs
-            let carbs = Double.random(in: 0.0...25.0)
-            carbData.append(CarbDataPoint(date: date, grams: carbs))
+            // Insulin and Carb Data
+            activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: Double.random(in: 0.0...1.0)))
+            insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: Double.random(in: 0.0...1.5)))
+            carbData.append(CarbDataPoint(date: date, grams: Double.random(in: 0.0...25.0)))
         }
 
-        // Sort all arrays from oldest-to-newest date
+        // Generate Mock Data for Other Features
+        generateAdditionalMockData()
+
+        // Sort all data
+        sortAllData()
+    }
+
+    private func generateAdditionalMockData() {
+        // Exercise Data
+        exerciseData = (0..<10).map {
+            ExerciseDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                type: ["Walking", "Running", "Yoga"].randomElement()!,
+                durationInMinutes: Int.random(in: 15...90),
+                intensity: ["Low", "Moderate", "High"].randomElement()!
+            )
+        }
+
+        // Meal Data
+        mealData = (0..<5).map {
+            MealDataPoint(
+                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
+                mealType: ["Breakfast", "Lunch", "Dinner", "Snack"].randomElement()!,
+                description: ["Oatmeal", "Grilled Chicken", "Salad"].randomElement()!,
+                carbs: Double.random(in: 20...80)
+            )
+        }
+
+        // Notifications
+        notificationEvents = (0..<3).map {
+            NotificationEvent(
+                date: Date().addingTimeInterval(Double.random(in: -24 * 60 * 60 ... 0)),
+                type: ["High Glucose Alert", "Low Glucose Alert"].randomElement()!,
+                message: "Glucose out of range!",
+                acknowledged: Bool.random()
+            )
+        }
+
+        // Connected Devices
+        connectedDevices = [
+            DeviceData(deviceName: "Dexcom G6", batteryLevel: Double.random(in: 20...100), lastSyncDate: Date(), status: "Connected"),
+            DeviceData(deviceName: "OmniPod", batteryLevel: Double.random(in: 10...100), lastSyncDate: Date().addingTimeInterval(-3 * 60 * 60), status: "Disconnected")
+        ]
+
+        // Glucose Trends
+        let averageGlucose = glucoseData.map(\.level).reduce(0, +) / Double(glucoseData.count)
+        glucoseTrends = [
+            GlucoseTrend(
+                period: "Last 7 Days",
+                averageGlucose: averageGlucose,
+                highestGlucose: glucoseData.map(\.level).max() ?? 0.0,
+                lowestGlucose: glucoseData.map(\.level).min() ?? 0.0,
+                timeInRange: calculateTimeInRange()
+            )
+        ]
+    }
+
+    private func sortAllData() {
         glucoseData.sort(by: { $0.date < $1.date })
         predictedGlucoseData.sort(by: { $0.date < $1.date })
         activeInsulinData.sort(by: { $0.date < $1.date })
         insulinDeliveryData.sort(by: { $0.date < $1.date })
         carbData.sort(by: { $0.date < $1.date })
     }
-}
 
-extension DiabetesDataStore {
-    /// Randomize only the numeric fields (levels, units, etc.), keep dates sorted.
+    private func calculateTimeInRange() -> Double {
+        let inRange = glucoseData.filter { $0.level >= 4.0 && $0.level <= 10.0 }
+        return (Double(inRange.count) / Double(glucoseData.count)) * 100.0
+    }
+
+    // MARK: - Shuffle Data for Testing
     func shuffleAllData() {
-        // Glucose
+        // Shuffle core data values
         for i in glucoseData.indices {
             glucoseData[i].level = Double.random(in: 4.5...9.5)
         }
-
-        // Predicted glucose
-        for i in predictedGlucoseData.indices {
-            predictedGlucoseData[i].predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
-        }
-
-        // Active insulin
-        for i in activeInsulinData.indices {
-            activeInsulinData[i].units = Double.random(in: 0.0...1.0)
-        }
-
-        // Insulin delivery
-        for i in insulinDeliveryData.indices {
-            insulinDeliveryData[i].deliveredUnits = Double.random(in: 0.0...1.5)
-        }
-
-        // Carbs
-        for i in carbData.indices {
-            carbData[i].grams = Double.random(in: 0.0...25.0)
-        }
-
-        // New: Randomized exercise data (if applicable)
-        let exerciseData: [ExerciseDataPoint] = (0..<10).map { _ in
-            ExerciseDataPoint(
-                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
-                type: ["Walking", "Running", "Cycling", "Yoga"].randomElement()!,
-                durationInMinutes: Int.random(in: 15...90),
-                intensity: ["Low", "Moderate", "High"].randomElement()!
-            )
-        }
-        // (Assume you store this exercise data in a published property if needed)
-
-        // New: Randomized meal data (if applicable)
-        let mealData: [MealDataPoint] = (0..<5).map { _ in
-            MealDataPoint(
-                date: Date().addingTimeInterval(Double.random(in: -7 * 24 * 60 * 60 ... 0)),
-                mealType: ["Breakfast", "Lunch", "Dinner", "Snack"].randomElement()!,
-                description: ["Oatmeal", "Sandwich", "Salad", "Grilled Chicken"].randomElement()!,
-                carbs: Double.random(in: 20...80)
-            )
-        }
-
-        // Randomize top-level summary fields
-        currentGlucose = Double.random(in: 4.5...9.5)
-        predictedGlucose = Double.random(in: 4.5...9.5)
-        activeInsulin = Double.random(in: 0.0...2.0)
-        carbsOnBoard = Double.random(in: 0.0...30.0)
-        lastUpdate = Date()
+        // Shuffle additional data if needed
+        generateAdditionalMockData()
     }
-}
-
-struct UserProfile {
-    let id: UUID = UUID()
-    var name: String
-    var age: Int
-    var typeOfDiabetes: String // e.g., Type 1, Type 2, Gestational
-    var targetRange: (min: Double, max: Double) // e.g., (4.0, 10.0)
-}
-
-
-struct MedicationDataPoint: Identifiable {
-    let id = UUID()
-    let date: Date
-    var medicationName: String
-    var dosage: String // e.g., "500 mg"
-}
-
-struct ExerciseDataPoint: Identifiable {
-    let id = UUID()
-    let date: Date
-    var type: String // e.g., "Walking", "Running"
-    var durationInMinutes: Int
-    var intensity: String // e.g., "Low", "Moderate", "High"
-}
-
-struct TimeInRangeSummary {
-    let date: Date
-    var timeInRange: Double // Percentage (e.g., 75.0%)
-    var hypoEvents: Int // Number of low glucose events
-    var hyperEvents: Int // Number of high glucose events
-}
-
-struct MealDataPoint: Identifiable {
-    let id = UUID()
-    let date: Date
-    var mealType: String // e.g., "Breakfast", "Snack"
-    var description: String // e.g., "Oatmeal with fruit"
-    var carbs: Double // Carbohydrate amount in grams
-}
-
-struct NotificationEvent: Identifiable {
-    let id = UUID()
-    let date: Date
-    var type: String // e.g., "High Glucose Alert"
-    var message: String
-    var acknowledged: Bool
-}
-
-struct DeviceData {
-    let deviceName: String // e.g., "Dexcom G6", "OmniPod"
-    var batteryLevel: Double? // Optional: e.g., 80.0%
-    var lastSyncDate: Date?
-}
-
-
-struct GlucoseTrend {
-    let period: String // e.g., "Last 7 Days"
-    var averageGlucose: Double
-    var highestGlucose: Double
-    var lowestGlucose: Double
-    var timeInRange: Double // Percentage
-}
-
-struct EventLogEntry: Identifiable {
-    let id = UUID()
-    let date: Date
-    var eventType: String // e.g., "Glucose Check", "Insulin Dose"
-    var description: String
-}
-
-struct CGMSensorReading: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    var glucoseLevel: Double
-    var trendArrow: String? // e.g., "↑", "↓", "→"
 }
