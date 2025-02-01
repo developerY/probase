@@ -7,35 +7,31 @@
 import SwiftUI
 import Charts
 
-/// Represents a single glucose data point
+// MARK: - Data Models
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var level: Double // e.g., 5.8 mmol/L
+    var level: Double // e.g., mmol/L
 }
 
-/// Represents a predicted glucose data point
 struct PredictedGlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
     var predictedLevel: Double
 }
 
-/// Represents active insulin over time
 struct ActiveInsulinDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var units: Double // e.g. 0.13 U
+    var units: Double
 }
 
-/// Represents insulin delivery over time
 struct InsulinDeliveryDataPoint: Identifiable {
     let id = UUID()
     let date: Date
     var deliveredUnits: Double
 }
 
-/// Represents carbohydrate data over time
 struct CarbDataPoint: Identifiable {
     let id = UUID()
     let date: Date
@@ -62,44 +58,44 @@ class DiabetesDataStore: ObservableObject {
         generateMockData()
     }
 
-    /// Populates the store with some mock data
+    /// Populates the store with 7 days of data, every 15 minutes
     private func generateMockData() {
         let now = Date()
         lastUpdate = now
 
-        // Generate 7 days of data, every 15 minutes
+        // 7 days * 24 hours/day * 4 intervals/hour = 672 data points
         for i in 0..<(7 * 24 * 4) {
+            // Each increment goes 15 minutes further into the past
             let offset = TimeInterval(-15 * 60 * i)
             let date = now.addingTimeInterval(offset)
 
-
-            // Random-ish glucose
+            // Random-ish glucose reading
             let glucoseLevel = Double.random(in: 4.5...9.5)
             glucoseData.append(GlucoseDataPoint(date: date, level: glucoseLevel))
 
-            // Random predicted values for next 3 hours
+            // Random predicted values for the first 3 hours (12 intervals)
             if i < 12 {
-                let predictedDate = now.addingTimeInterval(TimeInterval(15 * 60 * i))
+                let futureDate = now.addingTimeInterval(TimeInterval(15 * 60 * i))
                 let predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
                 predictedGlucoseData.append(
-                    PredictedGlucoseDataPoint(date: predictedDate, predictedLevel: predictedLevel)
+                    PredictedGlucoseDataPoint(date: futureDate, predictedLevel: predictedLevel)
                 )
             }
 
-            // Simulate active insulin
+            // Simulated active insulin
             let active = Double.random(in: 0.0...1.0)
             activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: active))
 
-            // Simulate insulin delivery
+            // Simulated insulin delivery
             let delivered = Double.random(in: 0.0...1.5)
             insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: delivered))
 
-            // Simulate carbs
+            // Simulated carbs
             let carbs = Double.random(in: 0.0...25.0)
             carbData.append(CarbDataPoint(date: date, grams: carbs))
         }
 
-        // Sort data oldest to newest
+        // Sort all arrays from oldest-to-newest date
         glucoseData.sort(by: { $0.date < $1.date })
         predictedGlucoseData.sort(by: { $0.date < $1.date })
         activeInsulinData.sort(by: { $0.date < $1.date })
@@ -108,37 +104,36 @@ class DiabetesDataStore: ObservableObject {
     }
 }
 
+// MARK: - Shuffle Numeric Values
 extension DiabetesDataStore {
-    /// Randomize only the numeric values (levels, units, etc.), keep dates sorted.
+    /// Randomize only the numeric fields (levels, units, etc.), keep dates sorted.
     func shuffleAllData() {
-        // Randomize the glucose "level" only
+        // Glucose
         for i in glucoseData.indices {
             glucoseData[i].level = Double.random(in: 4.5...9.5)
         }
         
-        // Randomize the predicted "predictedLevel"
+        // Predicted
         for i in predictedGlucoseData.indices {
             predictedGlucoseData[i].predictedLevel = 5.0 + Double.random(in: -0.5...0.5)
         }
         
-        // Randomize the active insulin "units"
+        // Active insulin
         for i in activeInsulinData.indices {
             activeInsulinData[i].units = Double.random(in: 0.0...1.0)
         }
         
-        // Randomize insulin delivery "deliveredUnits"
+        // Insulin delivery
         for i in insulinDeliveryData.indices {
             insulinDeliveryData[i].deliveredUnits = Double.random(in: 0.0...1.5)
         }
         
-        // Randomize carb "grams"
+        // Carbs
         for i in carbData.indices {
             carbData[i].grams = Double.random(in: 0.0...25.0)
         }
         
-        // Because we never touched the 'date' field, each array remains chronologically sorted.
-
-        // Randomize top-level numbers
+        // Randomize top-level summary fields
         currentGlucose = Double.random(in: 4.5...9.5)
         predictedGlucose = Double.random(in: 4.5...9.5)
         activeInsulin = Double.random(in: 0.0...2.0)
@@ -146,6 +141,3 @@ extension DiabetesDataStore {
         lastUpdate = Date()
     }
 }
-
-
-

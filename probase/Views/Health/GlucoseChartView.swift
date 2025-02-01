@@ -9,67 +9,34 @@ import Charts
 
 struct GlucoseChartView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
-    
-    var body: some View {
-        // If you only support iOS 16+:
-        Chart {
-            createChartContent()
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic) { _ in
-                AxisGridLine()
-                AxisValueLabel(format: .dateTime.hour().minute())
-            }
-        }
-        .chartYAxis {
-            AxisMarks(values: .automatic) { _ in
-                AxisGridLine()
-                //AxisValueLabel(format: .number.precision(.fractionLength(1)))
-            }
-        }
-        .chartScrollableAxes(.horizontal)
-        //.chartZoom(.automatic)
-        .frame(height: 200)
-        .padding()
-    }
 
-    /// Breaks up the large code block into a separate function
-    @ChartContentBuilder
-    private func createChartContent() -> some ChartContent {
-        // Historical glucose
-        ForEach(dataStore.glucoseData) { point in
-            LineMark(
-                x: .value("Time", point.date),
-                y: .value("Glucose (mmol/L)", point.level)
-            )
-            .foregroundStyle(.blue)
-            
-            PointMark(
-                x: .value("Time", point.date),
-                y: .value("Glucose (mmol/L)", point.level)
-            )
-            .symbol(.circle)
-            .symbolSize(20)
-            .foregroundStyle(.blue)
-        }
-        
-        // Predicted
-        ForEach(dataStore.predictedGlucoseData) { pred in
-            LineMark(
-                x: .value("Time", pred.date),
-                y: .value("Predicted (mmol/L)", pred.predictedLevel)
-            )
-            .foregroundStyle(.orange)
-            .interpolationMethod(.monotone)
-            .lineStyle(StrokeStyle(lineWidth: 2, dash: [4,4]))
-            
-            PointMark(
-                x: .value("Time", pred.date),
-                y: .value("Predicted (mmol/L)", pred.predictedLevel)
-            )
-            .symbol(.diamond)
-            .symbolSize(15)
-            .foregroundStyle(.orange)
-        }
+    var body: some View {
+    
+            Chart {
+                // Use the entire 7 days or filter to last 24 hours if you want
+                ForEach(dataStore.glucoseData) { point in
+                    LineMark(
+                        x: .value("Time", point.date),    // X = Date
+                        y: .value("Glucose", point.level) // Y = Numeric
+                    )
+                }
+            }
+            .chartXAxis {
+                AxisMarks(values: .automatic) {
+                    AxisGridLine()
+                    // Format dates on X
+                    AxisValueLabel(format: .dateTime.day().hour().minute())
+                }
+            }
+            .chartYAxis {
+                AxisMarks(values: .automatic) {
+                    AxisGridLine()
+                    // Format numeric on Y
+                    // AxisValueLabel(format: .number.precision(.fractionLength(1)))
+                }
+            }
+            .frame(height: 300)
+            .padding()
+    
     }
 }
