@@ -1,11 +1,32 @@
 import SwiftUI
 
 // MARK: - Data Models
+import Foundation
+
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var level: Double
+    var level: Double // Glucose level in mmol/L
+    var trendArrow: String? // e.g., "↑", "↓", "→"
+    
+    init(date: Date, level: Double) {
+        self.date = date
+        self.level = level
+        self.trendArrow = GlucoseDataPoint.calculateTrend(for: level)
+    }
+    
+    static func calculateTrend(for level: Double) -> String {
+        // Example logic for determining trend based on glucose level thresholds
+        if level > 8.5 {
+            return "↑" // High trend
+        } else if level < 4.0 {
+            return "↓" // Low trend
+        } else {
+            return "→" // Stable trend
+        }
+    }
 }
+
 
 struct PredictedGlucoseDataPoint: Identifiable {
     let id = UUID()
@@ -105,7 +126,7 @@ class DiabetesDataStore: ObservableObject {
 
     init() {
         generateMockData()
-        generateAdditionalMockData()
+        startLiveUpdates()
     }
 
     // MARK: - Helper Methods for Mock Data
@@ -140,6 +161,23 @@ class DiabetesDataStore: ObservableObject {
                 acknowledged: Bool.random()
             )
         }
+    }
+    
+    
+    private func startLiveUpdates() {
+        Task {
+            while true {
+                await updateGlucoseData()
+                try? await Task.sleep(nanoseconds: 5_000_000_000)  // Sleep for 5 seconds
+            }
+        }
+    }
+
+    @MainActor
+    private func updateGlucoseData() {
+        let newPoint = GlucoseDataPoint(date: Date(), level: Double.random(in: 4.5...9.5))
+        glucoseData.append(newPoint)
+        glucoseData = glucoseData.suffix(100)  // Limit data points
     }
 
     private func generateTrend(period: String, days: Int) -> GlucoseTrend {

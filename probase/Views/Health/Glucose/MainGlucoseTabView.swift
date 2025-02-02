@@ -49,9 +49,11 @@ struct MainGlucoseTabView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             MainGlucoseTabView()
+                .environmentObject(DiabetesDataStore())
                 .previewDisplayName("Light Mode")
 
             MainGlucoseTabView()
+                .environmentObject(DiabetesDataStore())
                 .previewDisplayName("Dark Mode")
                 .preferredColorScheme(.dark)
         }

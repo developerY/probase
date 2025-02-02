@@ -7,6 +7,9 @@
 import SwiftUI
 
 struct HomeDashboardView: View {
+    @EnvironmentObject var dataStore: DiabetesDataStore
+    
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -33,10 +36,15 @@ struct HomeDashboardView: View {
                     }
 
                     // Mini Trend Chart (placeholder)
-                    RoundedRectangle(cornerRadius: 8)
+                    /*RoundedRectangle(cornerRadius: 8)
                         .fill(Color.blue.opacity(0.2))
                         .frame(height: 120)
-                        .overlay(Text("Mini Trend Chart").foregroundColor(.blue))
+                        .overlay(Text("Mini Trend Chart").foregroundColor(.blue))*/
+                    
+                    // Inside your DashboardView layout:
+                    MiniTrendChartView()
+                        .environmentObject(dataStore)
+
 
                     // Quick Actions
                     HStack(spacing: 16) {
@@ -85,9 +93,11 @@ struct HomeDashboardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             HomeDashboardView()
+                .environmentObject(DiabetesDataStore())
                 .previewDisplayName("Light Mode")
 
             HomeDashboardView()
+                .environmentObject(DiabetesDataStore())
                 .previewDisplayName("Dark Mode")
                 .preferredColorScheme(.dark)
         }
