@@ -30,12 +30,27 @@ struct HomeDashboardView: View {
                             .font(.headline)
                             .foregroundColor(.orange)
                     }
+                    .padding()
+                    .background(Color.cyan.opacity(0.2))
+                    .cornerRadius(12)
 
                     // Key Stats
                     HStack(spacing: 16) {
-                        DashboardStatView(title: "Time in Range", value: "72%")
-                        DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U")
-                        DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g")
+                        DashboardStatView(
+                            title: "Time in Range",
+                            value: "72%",
+                            backgroundColor: Color.green.opacity(0.3)
+                        )
+                        DashboardStatView(
+                            title: "Active Insulin",
+                            value: "\(String(format: "%.2f", dataStore.activeInsulin)) U",
+                            backgroundColor: Color.yellow.opacity(0.3)
+                        )
+                        DashboardStatView(
+                            title: "Carbs On Board",
+                            value: "\(Int(dataStore.carbsOnBoard)) g",
+                            backgroundColor: Color.purple.opacity(0.3)
+                        )
                     }
 
                     // Mini Trend Chart with expandable header
@@ -66,12 +81,15 @@ struct HomeDashboardView: View {
                             Label("Log BG", systemImage: "drop.fill")
                         }
                         .buttonStyle(.borderedProminent)
+                        .tint(Color.blue)
 
                         Button(action: {}) {
                             Label("Add Meal", systemImage: "fork.knife.circle")
                         }
                         .buttonStyle(.borderedProminent)
+                        .tint(Color.orange)
                     }
+                    .padding()
                 }
                 .padding()
             }
@@ -84,6 +102,7 @@ struct HomeDashboardView: View {
         HStack {
             Text(title)
                 .font(.headline)
+                .foregroundColor(.primary)
             Spacer()
             Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
                 .foregroundColor(.secondary)
@@ -93,9 +112,9 @@ struct HomeDashboardView: View {
                     }
                 }
         }
-        .padding(8)
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(8)
+        .padding(12)
+        .background(Color.indigo.opacity(0.2))
+        .cornerRadius(12)
     }
 }
 
@@ -103,6 +122,7 @@ struct HomeDashboardView: View {
 struct DashboardStatView: View {
     let title: String
     let value: String
+    let backgroundColor: Color
 
     var body: some View {
         VStack {
@@ -116,8 +136,8 @@ struct DashboardStatView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(8)
+        .background(backgroundColor)
+        .cornerRadius(12)
     }
 }
 
@@ -136,3 +156,4 @@ struct HomeDashboardView_Previews: PreviewProvider {
         }
     }
 }
+
