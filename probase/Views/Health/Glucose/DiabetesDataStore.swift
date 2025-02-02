@@ -2,25 +2,30 @@ import SwiftUI
 import Foundation
 
 // MARK: - Data Models
+// MARK: - Data Models
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
     var level: Double
     var trendArrow: String
-    
-    init(date: Date, level: Double) {
+    var notes: String?
+    var tags: [String]?
+
+    init(date: Date, level: Double, notes: String? = nil, tags: [String]? = nil) {
         self.date = date
         self.level = level
+        self.notes = notes
+        self.tags = tags
         self.trendArrow = GlucoseDataPoint.calculateTrend(for: level)
     }
-    
+
     static func calculateTrend(for level: Double) -> String {
         if level > 8.5 {
-            return "↑" // High trend
+            return "↑"
         } else if level < 4.0 {
-            return "↓" // Low trend
+            return "↓"
         } else {
-            return "→" // Stable trend
+            return "→"
         }
     }
 }
@@ -121,10 +126,43 @@ class DiabetesDataStore: ObservableObject {
     @Published var insulinOnBoard: Double = 0.0
     @Published var carbsOnBoard: Double = 0.0
 
-    init() {
+    init(mockData: Bool = false) {
+        
+        if mockData {
+            glucoseData = (0..<10).map {
+                GlucoseDataPoint(
+                    date: Date().addingTimeInterval(Double(-$0 * 60 * 60)),
+                    level: Double.random(in: 4.0...9.0),
+                    notes: "Mock data",
+                    tags: ["Test"]
+                )
+            }
+        }
+        
+        
         generateMockData()
         startLiveUpdates()
     }
+    
+    
+    
+    // MARK: - Add, update, and delete functionality
+    func addReading(level: Double, notes: String, tags: [String] = []) {
+        let newReading = GlucoseDataPoint(date: Date(), level: level, notes: notes, tags: tags)
+        glucoseData.append(newReading)
+    }
+
+    func updateReading(_ reading: GlucoseDataPoint, newLevel: Double, newNotes: String, newTags: [String]) {
+        guard let index = glucoseData.firstIndex(where: { $0.id == reading.id }) else { return }
+        glucoseData[index].level = newLevel
+        glucoseData[index].notes = newNotes
+        glucoseData[index].tags = newTags
+    }
+
+    func deleteReading(_ reading: GlucoseDataPoint) {
+        glucoseData.removeAll { $0.id == reading.id }
+    }
+    
 
     // MARK: - Helper Methods for Mock Data
     private func generateExerciseData() -> [ExerciseDataPoint] {

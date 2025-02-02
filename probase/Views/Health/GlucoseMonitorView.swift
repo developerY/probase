@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct GlucoseMonitorView: View {
-    @EnvironmentObject var dataStore: GlucoseDataStore
+    @EnvironmentObject var dataStore: DiabetesDataStore
 
     @State private var glucoseLevel: Double = 100.0
     @State private var showAlert: Bool = false

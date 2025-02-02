@@ -3,18 +3,16 @@
 //  probase
 //
 //  Created by Siamak Ashrafi on 2/1/25.
-//
+//    @Published var readings: [GlucoseReading] = []
 import SwiftUI
 
 struct GlucoseHistoryView: View {
-    @State private var isChartExpanded: Bool = true  // State to control chart visibility
-    @EnvironmentObject private var dataStore: GlucoseDataStore
-    
-    
+    @EnvironmentObject var dataStore: DiabetesDataStore
+    @State private var isChartExpanded: Bool = true
+
     var body: some View {
         NavigationView {
             VStack {
-                // A placeholder large chart area
                 // Expandable chart header with chevron
                 chartHeader(title: "Glucose History Chart", isExpanded: $isChartExpanded)
 
@@ -70,32 +68,31 @@ struct GlucoseHistoryView: View {
             .navigationTitle("History")
         }
     }
-}
 
-// MARK: - Chart Header with Expand/Collapse Chevron
-private func chartHeader(title: String, isExpanded: Binding<Bool>) -> some View {
-    HStack {
-        Text(title)
-            .font(.headline)
-        Spacer()
-        Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
-            .foregroundColor(.secondary)
-            .onTapGesture {
-                withAnimation(.easeInOut) {
-                    isExpanded.wrappedValue.toggle()
+    // MARK: - Chart Header with Expand/Collapse Chevron
+    private func chartHeader(title: String, isExpanded: Binding<Bool>) -> some View {
+        HStack {
+            Text(title)
+                .font(.headline)
+            Spacer()
+            Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                .foregroundColor(.secondary)
+                .onTapGesture {
+                    withAnimation(.easeInOut) {
+                        isExpanded.wrappedValue.toggle()
+                    }
                 }
-            }
+        }
+        .padding(8)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(8)
     }
-    .padding(8)
-    .background(Color(UIColor.secondarySystemBackground))
-    .cornerRadius(8)
 }
-
 
 // MARK: - Preview
 struct GlucoseHistoryView_Previews: PreviewProvider {
     static var previews: some View {
         GlucoseHistoryView()
-            .environmentObject(DiabetesDataStore())
+            .environmentObject(DiabetesDataStore(mockData: true))
     }
 }

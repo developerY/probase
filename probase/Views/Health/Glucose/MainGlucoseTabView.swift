@@ -16,25 +16,25 @@ struct MainGlucoseTabView: View {
                     Text("Home")
                 }
 
-            GlucoseHistoryView()
+            GlucoseHistoryView() // Text("two")//
                 .tabItem {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                     Text("History")
                 }
 
-            QuickLogView()
+            Text("three")//QuickLogView()
                 .tabItem {
                     Image(systemName: "plus.circle.fill")
                     Text("Log")
                 }
 
-            MealCarbsView()
+            Text("x")//MealCarbsView()
                 .tabItem {
                     Image(systemName: "fork.knife.circle.fill")
                     Text("Meals")
                 }
 
-            SettingsProfileView()
+            Text("y")//SettingsProfileView()
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Settings")
