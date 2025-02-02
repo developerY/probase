@@ -6,6 +6,8 @@
 //
 import SwiftUI
 
+import SwiftUI
+
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: GlucoseDataStore
 
@@ -20,35 +22,38 @@ struct HomeDashboardView: View {
 
                     // Current Glucose
                     VStack {
-                        Text("Current Glucose")
+                        Label("Current Glucose", systemImage: "heart.fill")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
                             .font(.system(size: 40, weight: .bold))
                             .foregroundColor(.blue)
-                        Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
+                        Label("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")", systemImage: "arrow.up.right")
                             .font(.headline)
                             .foregroundColor(.orange)
                     }
                     .padding()
-                    .background(Color.cyan.opacity(0.2))
+                    .background(Color.cyan.opacity(0.3))
                     .cornerRadius(12)
 
-                    // Key Stats
+                    // Key Stats with SF Symbols
                     HStack(spacing: 16) {
                         DashboardStatView(
                             title: "Time in Range",
                             value: "72%",
+                            symbol: "clock.fill",
                             backgroundColor: Color.green.opacity(0.3)
                         )
                         DashboardStatView(
                             title: "Active Insulin",
                             value: "\(String(format: "%.2f", dataStore.activeInsulin)) U",
+                            symbol: "syringe.fill",
                             backgroundColor: Color.yellow.opacity(0.3)
                         )
                         DashboardStatView(
                             title: "Carbs On Board",
                             value: "\(Int(dataStore.carbsOnBoard)) g",
+                            symbol: "leaf.fill",
                             backgroundColor: Color.purple.opacity(0.3)
                         )
                     }
@@ -56,6 +61,7 @@ struct HomeDashboardView: View {
                     // Mini Trend Chart with expandable header
                     dashboardHeader(
                         title: "Mini Trend Chart",
+                        systemImage: "chart.line.uptrend.xyaxis",
                         isExpanded: $isMiniTrendChartExpanded
                     )
                     if isMiniTrendChartExpanded {
@@ -67,6 +73,7 @@ struct HomeDashboardView: View {
                     // Dashboard Trend Chart with expandable header
                     dashboardHeader(
                         title: "Dashboard Trend Chart",
+                        systemImage: "chart.bar.xaxis",
                         isExpanded: $isDashboardTrendChartExpanded
                     )
                     if isDashboardTrendChartExpanded {
@@ -84,7 +91,7 @@ struct HomeDashboardView: View {
                         .tint(Color.blue)
 
                         Button(action: {}) {
-                            Label("Add Meal", systemImage: "fork.knife.circle")
+                            Label("Add Meal", systemImage: "fork.knife.circle.fill")
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(Color.orange)
@@ -92,15 +99,16 @@ struct HomeDashboardView: View {
                     .padding()
                 }
                 .padding()
+                .background(Color(UIColor.systemGroupedBackground))
             }
             .navigationTitle("Dashboard")
         }
     }
 
     // MARK: - Dashboard Header with Expand/Collapse Chevron
-    private func dashboardHeader(title: String, isExpanded: Binding<Bool>) -> some View {
+    private func dashboardHeader(title: String, systemImage: String, isExpanded: Binding<Bool>) -> some View {
         HStack {
-            Text(title)
+            Label(title, systemImage: systemImage)
                 .font(.headline)
                 .foregroundColor(.primary)
             Spacer()
@@ -122,11 +130,12 @@ struct HomeDashboardView: View {
 struct DashboardStatView: View {
     let title: String
     let value: String
+    let symbol: String
     let backgroundColor: Color
 
     var body: some View {
         VStack {
-            Text(title)
+            Label(title, systemImage: symbol)
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(value)
@@ -156,4 +165,3 @@ struct HomeDashboardView_Previews: PreviewProvider {
         }
     }
 }
-
