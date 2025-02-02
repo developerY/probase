@@ -1,13 +1,12 @@
 import SwiftUI
-
-// MARK: - Data Models
 import Foundation
 
+// MARK: - Data Models
 struct GlucoseDataPoint: Identifiable {
     let id = UUID()
     let date: Date
-    var level: Double // Glucose level in mmol/L
-    var trendArrow: String? // e.g., "↑", "↓", "→"
+    var level: Double
+    var trendArrow: String
     
     init(date: Date, level: Double) {
         self.date = date
@@ -16,7 +15,6 @@ struct GlucoseDataPoint: Identifiable {
     }
     
     static func calculateTrend(for level: Double) -> String {
-        // Example logic for determining trend based on glucose level thresholds
         if level > 8.5 {
             return "↑" // High trend
         } else if level < 4.0 {
@@ -26,7 +24,6 @@ struct GlucoseDataPoint: Identifiable {
         }
     }
 }
-
 
 struct PredictedGlucoseDataPoint: Identifiable {
     let id = UUID()
@@ -202,7 +199,9 @@ class DiabetesDataStore: ObservableObject {
             let offset = TimeInterval(-15 * 60 * i)
             let date = now.addingTimeInterval(offset)
 
-            glucoseData.append(GlucoseDataPoint(date: date, level: Double.random(in: 4.5...9.5)))
+            let glucoseLevel = Double.random(in: 4.5...9.5)
+            glucoseData.append(GlucoseDataPoint(date: date, level: glucoseLevel))
+            
             if i < 12 {
                 predictedGlucoseData.append(
                     PredictedGlucoseDataPoint(
@@ -211,6 +210,7 @@ class DiabetesDataStore: ObservableObject {
                     )
                 )
             }
+
             activeInsulinData.append(ActiveInsulinDataPoint(date: date, units: Double.random(in: 0.0...1.0)))
             insulinDeliveryData.append(InsulinDeliveryDataPoint(date: date, deliveredUnits: Double.random(in: 0.0...1.5)))
             carbData.append(CarbDataPoint(date: date, grams: Double.random(in: 0.0...25.0)))

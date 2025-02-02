@@ -7,9 +7,6 @@
 import SwiftUI
 import Charts
 
-import SwiftUI
-import Charts
-
 struct DashboardTrendChartView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
 
@@ -19,13 +16,18 @@ struct DashboardTrendChartView: View {
                 x: .value("Time", point.date),
                 y: .value("Glucose Level", point.level)
             )
-            .symbol(by: .value("Trend", point.trendArrow ?? "→"))
-                        .symbol { _ in
-                            Circle() // Simplifying by always using Circle for now
-                        }
-                        .foregroundStyle(.blue) // Apply a simple style
-                        .lineStyle(StrokeStyle(lineWidth: 2))
-            }
+            .symbol(by: .value("Trend", point.trendArrow))
+            /*.symbol { trend in
+                // Return a valid ChartSymbolShape based on trend
+                switch trend {
+                case "↑":
+                    Circle().foregroundStyle(.red)
+                case "↓":
+                    Circle().foregroundStyle(.green)
+                default:
+                    Circle().foregroundStyle(.blue)
+                }
+            }*/
             .lineStyle(StrokeStyle(lineWidth: 2))
         }
         .chartXAxis {
@@ -37,7 +39,7 @@ struct DashboardTrendChartView: View {
         .chartYAxis {
             AxisMarks(values: .automatic) { _ in
                 AxisGridLine()
-                AxisValueLabel(format: .number.precision(.fractionLength(1)))
+                AxisValueLabel()
             }
         }
         .frame(height: 200)

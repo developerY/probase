@@ -8,22 +8,25 @@ import SwiftUI
 
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: DiabetesDataStore
-    
-    
+
+    // State variables to control graph visibility
+    @State private var isMiniTrendChartExpanded = true
+    @State private var isDashboardTrendChartExpanded = true
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    
+
                     // Current Glucose
                     VStack {
                         Text("Current Glucose")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("5.8 mmol/L")
+                        Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
                             .font(.system(size: 40, weight: .bold))
                             .foregroundColor(.blue)
-                        Text("Trending ↗︎")
+                        Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
                             .font(.headline)
                             .foregroundColor(.orange)
                     }
@@ -31,20 +34,31 @@ struct HomeDashboardView: View {
                     // Key Stats
                     HStack(spacing: 16) {
                         DashboardStatView(title: "Time in Range", value: "72%")
-                        DashboardStatView(title: "Active Insulin", value: "0.15 U")
-                        DashboardStatView(title: "Carbs On Board", value: "20 g")
+                        DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U")
+                        DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g")
                     }
 
-                    // Mini Trend Chart (placeholder)
-                    /*RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.2))
-                        .frame(height: 120)
-                        .overlay(Text("Mini Trend Chart").foregroundColor(.blue))*/
-                    
-                    // Inside your DashboardView layout:
-                    MiniTrendChartView()
-                        .environmentObject(dataStore)
+                    // Mini Trend Chart with expandable header
+                    dashboardHeader(
+                        title: "Mini Trend Chart",
+                        isExpanded: $isMiniTrendChartExpanded
+                    )
+                    if isMiniTrendChartExpanded {
+                        MiniTrendChartView()
+                            .environmentObject(dataStore)
+                            .transition(.slide)
+                    }
 
+                    // Dashboard Trend Chart with expandable header
+                    dashboardHeader(
+                        title: "Dashboard Trend Chart",
+                        isExpanded: $isDashboardTrendChartExpanded
+                    )
+                    if isDashboardTrendChartExpanded {
+                        DashboardTrendChartView()
+                            .environmentObject(dataStore)
+                            .transition(.slide)
+                    }
 
                     // Quick Actions
                     HStack(spacing: 16) {
@@ -64,9 +78,28 @@ struct HomeDashboardView: View {
             .navigationTitle("Dashboard")
         }
     }
+
+    // MARK: - Dashboard Header with Expand/Collapse Chevron
+    private func dashboardHeader(title: String, isExpanded: Binding<Bool>) -> some View {
+        HStack {
+            Text(title)
+                .font(.headline)
+            Spacer()
+            Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                .foregroundColor(.secondary)
+                .onTapGesture {
+                    withAnimation(.easeInOut) {
+                        isExpanded.wrappedValue.toggle()
+                    }
+                }
+        }
+        .padding(8)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(8)
+    }
 }
 
-/// A small helper view for displaying a stat tile
+// MARK: - DashboardStatView
 struct DashboardStatView: View {
     let title: String
     let value: String

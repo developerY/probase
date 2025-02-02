@@ -11,6 +11,7 @@ struct GlucoseHistoryView: View {
         NavigationView {
             VStack {
                 // A placeholder large chart area
+                GlucoseHistoryChartView()
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.blue.opacity(0.2))
                     .overlay(Text("Glucose Chart").foregroundColor(.blue))
@@ -65,3 +66,10 @@ struct GlucoseHistoryView: View {
     }
 }
 
+// MARK: - Preview
+struct GlucoseHistoryView_Previews: PreviewProvider {
+    static var previews: some View {
+        GlucoseHistoryView()
+            .environmentObject(DiabetesDataStore())
+    }
+}
