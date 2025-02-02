@@ -70,30 +70,28 @@ struct HomeDashboardView: View {
                         }
                         .padding(.horizontal)
 
-                        // Mini Trend Chart with expandable header
+                        // Mini Trend Chart with header
                         dashboardHeader(
                             title: "Mini Trend Chart",
-                            icon: "chart.line.uptrend.xyaxis",
-                            isExpanded: $isMiniTrendChartExpanded
+                            isExpanded: $isMiniTrendChartExpanded,
+                            backgroundColor: Color.purple.opacity(0.4) // Use your desired pastel color
                         )
                         if isMiniTrendChartExpanded {
                             MiniTrendChartView()
                                 .environmentObject(dataStore)
                                 .transition(.slide)
-                                .padding(.horizontal)
                         }
 
-                        // Dashboard Trend Chart with expandable header
+                        // Dashboard Trend Chart with header
                         dashboardHeader(
                             title: "Dashboard Trend Chart",
-                            icon: "chart.bar.fill",
-                            isExpanded: $isDashboardTrendChartExpanded
+                            isExpanded: $isDashboardTrendChartExpanded,
+                            backgroundColor: Color.teal.opacity(0.4) // Use a different pastel color for variety
                         )
                         if isDashboardTrendChartExpanded {
                             DashboardTrendChartViewOld()
                                 .environmentObject(dataStore)
                                 .transition(.slide)
-                                .padding(.horizontal)
                         }
 
                         // Quick Actions
@@ -118,15 +116,19 @@ struct HomeDashboardView: View {
         }
     }
 
-    // MARK: - Dashboard Header with Expand/Collapse Chevron
-    private func dashboardHeader(title: String, icon: String, isExpanded: Binding<Bool>) -> some View {
+    // MARK: - Dashboard Header with Expand/Collapse Chevron and Custom Background Color
+    private func dashboardHeader(title: String, isExpanded: Binding<Bool>, backgroundColor: Color) -> some View {
         HStack {
-            Label(title, systemImage: icon)
+            Image(systemName: title == "Mini Trend Chart" ? "chart.line.uptrend.xyaxis" : "chart.bar.doc.horizontal")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
             Spacer()
             Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
-                .foregroundColor(.secondary)
+                .font(.headline)
+                .foregroundColor(.white)
                 .onTapGesture {
                     withAnimation(.easeInOut) {
                         isExpanded.wrappedValue.toggle()
@@ -134,10 +136,10 @@ struct HomeDashboardView: View {
                 }
         }
         .padding(12)
-        .background(Color.white.opacity(0.9))
+        .background(backgroundColor)
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 3)
     }
+
 }
 
 // MARK: - DashboardStatView
