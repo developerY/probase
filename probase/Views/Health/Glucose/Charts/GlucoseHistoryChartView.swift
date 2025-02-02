@@ -10,7 +10,7 @@ import Charts
 // GlucoseHistoryChartView
 
 struct GlucoseHistoryChartView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
     @State private var selectedRange: Int = 0  // 0: Day, 1: Week, 2: Month
     
 
@@ -66,7 +66,7 @@ struct GlucoseHistoryChartView: View {
 struct GlucoseHistoryChartView_Previews: PreviewProvider {
     static var previews: some View {
         GlucoseHistoryChartView()
-            .environmentObject(DiabetesDataStore())
+            .environmentObject(GlucoseDataStore())
     }
 }
 

@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct GlucoseHistoryView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
     @State private var isChartExpanded: Bool = true
 
     var body: some View {
@@ -93,6 +93,6 @@ struct GlucoseHistoryView: View {
 struct GlucoseHistoryView_Previews: PreviewProvider {
     static var previews: some View {
         GlucoseHistoryView()
-            .environmentObject(DiabetesDataStore(mockData: true))
+            .environmentObject(GlucoseDataStore(mockData: true))
     }
 }

@@ -8,7 +8,7 @@ import SwiftUI
 import Charts
 
 struct MiniTrendChartView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
 
     var body: some View {
         Chart {
@@ -49,7 +49,7 @@ struct MiniTrendChartView: View {
 struct MiniTrendChartView_Previews: PreviewProvider {
     static var previews: some View {
         MiniTrendChartView()
-            .environmentObject(DiabetesDataStore())
+            .environmentObject(GlucoseDataStore())
             .previewLayout(.sizeThatFits)
             .padding()
     }

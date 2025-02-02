@@ -8,7 +8,7 @@ import SwiftUI
 import Charts
 
 struct DashboardTrendChartViewOld: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
 
     var body: some View {
         Chart(dataStore.glucoseData) { point in
@@ -51,7 +51,7 @@ struct DashboardTrendChartViewOld: View {
 struct DashboardTrendChartView_Previews: PreviewProvider {
     static var previews: some View {
         DashboardTrendChartViewOld()
-            .environmentObject(DiabetesDataStore())
+            .environmentObject(GlucoseDataStore())
             .previewDevice("iPhone 14 Pro")
     }
 }

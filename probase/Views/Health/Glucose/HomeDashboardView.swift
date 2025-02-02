@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct HomeDashboardView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
 
     // State variables to control graph visibility
     @State private var isMiniTrendChartExpanded = true
@@ -126,11 +126,11 @@ struct HomeDashboardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             HomeDashboardView()
-                .environmentObject(DiabetesDataStore())
+                .environmentObject(GlucoseDataStore())
                 .previewDisplayName("Light Mode")
 
             HomeDashboardView()
-                .environmentObject(DiabetesDataStore())
+                .environmentObject(GlucoseDataStore())
                 .previewDisplayName("Dark Mode")
                 .preferredColorScheme(.dark)
         }

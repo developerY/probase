@@ -8,7 +8,7 @@ import SwiftUI
 import Charts
 
 struct ComprehensiveGlucoseDashboardView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
     
     // Accordion states
     @State private var isGlucoseExpanded = true
@@ -194,13 +194,13 @@ struct ComprehensiveGlucoseDashboardView_Previews: PreviewProvider {
         Group {
             // Preview in Light Mode on an iPhone 15 Pro
             ComprehensiveGlucoseDashboardView()
-                .environmentObject(DiabetesDataStore())
+                .environmentObject(GlucoseDataStore())
                 .previewDevice("iPhone 15 Pro")
                 .previewDisplayName("iPhone 15 Pro - Light Mode")
 
             // Preview in Dark Mode on an iPhone SE (3rd generation)
             ComprehensiveGlucoseDashboardView()
-                .environmentObject(DiabetesDataStore())
+                .environmentObject(GlucoseDataStore())
                 .previewDevice("iPhone SE (3rd generation)")
                 .preferredColorScheme(.dark)
                 .previewDisplayName("iPhone SE (3rd gen) - Dark Mode")

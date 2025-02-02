@@ -8,7 +8,7 @@ import SwiftUI
 import Charts
 
 struct GlucoseTrendsChartView: View {
-    @EnvironmentObject var dataStore: DiabetesDataStore
+    @EnvironmentObject var dataStore: GlucoseDataStore
 
     var body: some View {
         Chart {

@@ -102,8 +102,8 @@ struct UserProfile {
     var targetRange: (min: Double, max: Double)
 }
 
-// MARK: - Diabetes Data Store
-class DiabetesDataStore: ObservableObject {
+// MARK: - Glucose Data Store
+class GlucoseDataStore: ObservableObject {
     // Core Data
     @Published var glucoseData: [GlucoseDataPoint] = []
     @Published var predictedGlucoseData: [PredictedGlucoseDataPoint] = []
