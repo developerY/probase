@@ -6,6 +6,18 @@
 //
 import SwiftUI
 
+// MARK: - Colors Extension
+extension Color {
+    static let pastelBlue = Color(red: 0.7, green: 0.85, blue: 1.0)
+    static let pastelGreen = Color(red: 0.75, green: 1.0, blue: 0.75)
+    static let pastelYellow = Color(red: 1.0, green: 1.0, blue: 0.75)
+    static let pastelPink = Color(red: 1.0, green: 0.8, blue: 0.85)
+    static let pastelPurple = Color(red: 0.85, green: 0.75, blue: 1.0)
+    static let pastelMint = Color(red: 0.75, green: 1.0, blue: 0.9)
+}
+
+import SwiftUI
+
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: GlucoseDataStore
 
@@ -14,85 +26,94 @@ struct HomeDashboardView: View {
     @State private var isDashboardTrendChartExpanded = true
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Current Glucose
-                    VStack {
-                        Label {
-                            Text("Current Glucose")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        } icon: {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
+        NavigationStack {
+            ZStack {
+                // Background Gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [.blue.opacity(0.6), .green.opacity(0.6)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Current Glucose
+                        VStack {
+                            Label {
+                                Text("Current Glucose")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            } icon: {
+                                Image(systemName: "heart.fill")
+                                    .foregroundColor(.red)
+                            }
+                            .padding(.bottom, 4)
+
+                            Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundColor(.white)
+
+                            Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
+                                .font(.headline)
+                                .foregroundColor(.orange)
                         }
-                        .padding(.bottom, 4)
+                        .padding()
+                        .background(Color("PastelBlue").opacity(0.9))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
 
-                        Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
-                            .font(.system(size: 40, weight: .bold))
-                            .foregroundColor(.blue)
-
-                        Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
-                            .font(.headline)
-                            .foregroundColor(.orange)
-                    }
-                    .padding()
-                    .background(.blue.opacity(0.125))//Color("PastelBlue"))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                    // Key Stats
-                    HStack(spacing: 16) {
-                        DashboardStatView(title: "Time in Range", value: "72%", icon: "clock.fill", color: .green)
-                        DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U", icon: "syringe.fill", color: .yellow)
-                        DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g", icon: "leaf.fill", color: .pink)
-                    }
-                    .padding(.horizontal)
-
-                    // Mini Trend Chart with expandable header
-                    dashboardHeader(
-                        title: "Mini Trend Chart",
-                        icon: "chart.line.uptrend.xyaxis",
-                        isExpanded: $isMiniTrendChartExpanded
-                    )
-                    if isMiniTrendChartExpanded {
-                        MiniTrendChartView()
-                            .environmentObject(dataStore)
-                            .transition(.slide)
-                            .padding(.horizontal)
-                    }
-
-                    // Dashboard Trend Chart with expandable header
-                    dashboardHeader(
-                        title: "Dashboard Trend Chart",
-                        icon: "chart.bar.fill",
-                        isExpanded: $isDashboardTrendChartExpanded
-                    )
-                    if isDashboardTrendChartExpanded {
-                        DashboardTrendChartViewOld()
-                            .environmentObject(dataStore)
-                            .transition(.slide)
-                            .padding(.horizontal)
-                    }
-
-                    // Quick Actions
-                    HStack(spacing: 16) {
-                        Button(action: {}) {
-                            Label("Log BG", systemImage: "drop.fill")
+                        // Key Stats
+                        HStack(spacing: 16) {
+                            DashboardStatView(title: "Time in Range", value: "72%", icon: "clock.fill", color: .green)
+                            DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U", icon: "drop.fill", color: .yellow)
+                            DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g", icon: "leaf.fill", color: .pink)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.blue)
+                        .padding(.horizontal)
 
-                        Button(action: {}) {
-                            Label("Add Meal", systemImage: "fork.knife.circle")
+                        // Mini Trend Chart with expandable header
+                        dashboardHeader(
+                            title: "Mini Trend Chart",
+                            icon: "chart.line.uptrend.xyaxis",
+                            isExpanded: $isMiniTrendChartExpanded
+                        )
+                        if isMiniTrendChartExpanded {
+                            MiniTrendChartView()
+                                .environmentObject(dataStore)
+                                .transition(.slide)
+                                .padding(.horizontal)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
+
+                        // Dashboard Trend Chart with expandable header
+                        dashboardHeader(
+                            title: "Dashboard Trend Chart",
+                            icon: "chart.bar.fill",
+                            isExpanded: $isDashboardTrendChartExpanded
+                        )
+                        if isDashboardTrendChartExpanded {
+                            DashboardTrendChartViewOld()
+                                .environmentObject(dataStore)
+                                .transition(.slide)
+                                .padding(.horizontal)
+                        }
+
+                        // Quick Actions
+                        HStack(spacing: 16) {
+                            Button(action: {}) {
+                                Label("Log BG", systemImage: "drop.fill")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.blue)
+
+                            Button(action: {}) {
+                                Label("Add Meal", systemImage: "fork.knife.circle")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.orange)
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
-                .background(Color("PastelBackground"))
             }
             .navigationTitle("Dashboard")
         }
@@ -114,7 +135,7 @@ struct HomeDashboardView: View {
                 }
         }
         .padding(12)
-        .background(Color("PastelHeader"))
+        .background(Color("PastelHeader").opacity(0.9))
         .cornerRadius(12)
     }
 }
@@ -138,20 +159,9 @@ struct DashboardStatView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(color.opacity(0.2))
+        .background(color.opacity(0.3))
         .cornerRadius(12)
     }
-}
-
-
-// MARK: - Colors Extension
-extension Color {
-    static let pastelBlue = Color(red: 0.7, green: 0.85, blue: 1.0)
-    static let pastelGreen = Color(red: 0.75, green: 1.0, blue: 0.75)
-    static let pastelYellow = Color(red: 1.0, green: 1.0, blue: 0.75)
-    static let pastelPink = Color(red: 1.0, green: 0.8, blue: 0.85)
-    static let pastelPurple = Color(red: 0.85, green: 0.75, blue: 1.0)
-    static let pastelMint = Color(red: 0.75, green: 1.0, blue: 0.9)
 }
 
 // MARK: - Preview
