@@ -6,8 +6,6 @@
 //
 import SwiftUI
 
-import SwiftUI
-
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: GlucoseDataStore
 
@@ -19,67 +17,63 @@ struct HomeDashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-
                     // Current Glucose
                     VStack {
-                        Label("Current Glucose", systemImage: "heart.fill")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        Label {
+                            Text("Current Glucose")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        } icon: {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                        }
+                        .padding(.bottom, 4)
+
                         Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
                             .font(.system(size: 40, weight: .bold))
                             .foregroundColor(.blue)
-                        Label("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")", systemImage: "arrow.up.right")
+
+                        Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
                             .font(.headline)
                             .foregroundColor(.orange)
                     }
                     .padding()
-                    .background(Color.cyan.opacity(0.3))
+                    .background(.blue.opacity(0.125))//Color("PastelBlue"))
                     .cornerRadius(12)
+                    .padding(.horizontal)
 
-                    // Key Stats with SF Symbols
+                    // Key Stats
                     HStack(spacing: 16) {
-                        DashboardStatView(
-                            title: "Time in Range",
-                            value: "72%",
-                            symbol: "clock.fill",
-                            backgroundColor: Color.green.opacity(0.3)
-                        )
-                        DashboardStatView(
-                            title: "Active Insulin",
-                            value: "\(String(format: "%.2f", dataStore.activeInsulin)) U",
-                            symbol: "syringe.fill",
-                            backgroundColor: Color.yellow.opacity(0.3)
-                        )
-                        DashboardStatView(
-                            title: "Carbs On Board",
-                            value: "\(Int(dataStore.carbsOnBoard)) g",
-                            symbol: "leaf.fill",
-                            backgroundColor: Color.purple.opacity(0.3)
-                        )
+                        DashboardStatView(title: "Time in Range", value: "72%", icon: "clock.fill", color: .green)
+                        DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U", icon: "syringe.fill", color: .yellow)
+                        DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g", icon: "leaf.fill", color: .pink)
                     }
+                    .padding(.horizontal)
 
                     // Mini Trend Chart with expandable header
                     dashboardHeader(
                         title: "Mini Trend Chart",
-                        systemImage: "chart.line.uptrend.xyaxis",
+                        icon: "chart.line.uptrend.xyaxis",
                         isExpanded: $isMiniTrendChartExpanded
                     )
                     if isMiniTrendChartExpanded {
                         MiniTrendChartView()
                             .environmentObject(dataStore)
                             .transition(.slide)
+                            .padding(.horizontal)
                     }
 
                     // Dashboard Trend Chart with expandable header
                     dashboardHeader(
                         title: "Dashboard Trend Chart",
-                        systemImage: "chart.bar.xaxis",
+                        icon: "chart.bar.fill",
                         isExpanded: $isDashboardTrendChartExpanded
                     )
                     if isDashboardTrendChartExpanded {
                         DashboardTrendChartViewOld()
                             .environmentObject(dataStore)
                             .transition(.slide)
+                            .padding(.horizontal)
                     }
 
                     // Quick Actions
@@ -88,27 +82,26 @@ struct HomeDashboardView: View {
                             Label("Log BG", systemImage: "drop.fill")
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(Color.blue)
+                        .tint(.blue)
 
                         Button(action: {}) {
-                            Label("Add Meal", systemImage: "fork.knife.circle.fill")
+                            Label("Add Meal", systemImage: "fork.knife.circle")
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(Color.orange)
+                        .tint(.orange)
                     }
                     .padding()
                 }
-                .padding()
-                .background(Color(UIColor.systemGroupedBackground))
+                .background(Color("PastelBackground"))
             }
             .navigationTitle("Dashboard")
         }
     }
 
     // MARK: - Dashboard Header with Expand/Collapse Chevron
-    private func dashboardHeader(title: String, systemImage: String, isExpanded: Binding<Bool>) -> some View {
+    private func dashboardHeader(title: String, icon: String, isExpanded: Binding<Bool>) -> some View {
         HStack {
-            Label(title, systemImage: systemImage)
+            Label(title, systemImage: icon)
                 .font(.headline)
                 .foregroundColor(.primary)
             Spacer()
@@ -121,7 +114,7 @@ struct HomeDashboardView: View {
                 }
         }
         .padding(12)
-        .background(Color.indigo.opacity(0.2))
+        .background(Color("PastelHeader"))
         .cornerRadius(12)
     }
 }
@@ -130,12 +123,12 @@ struct HomeDashboardView: View {
 struct DashboardStatView: View {
     let title: String
     let value: String
-    let symbol: String
-    let backgroundColor: Color
+    let icon: String
+    let color: Color
 
     var body: some View {
         VStack {
-            Label(title, systemImage: symbol)
+            Label(title, systemImage: icon)
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(value)
@@ -145,9 +138,20 @@ struct DashboardStatView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(backgroundColor)
+        .background(color.opacity(0.2))
         .cornerRadius(12)
     }
+}
+
+
+// MARK: - Colors Extension
+extension Color {
+    static let pastelBlue = Color(red: 0.7, green: 0.85, blue: 1.0)
+    static let pastelGreen = Color(red: 0.75, green: 1.0, blue: 0.75)
+    static let pastelYellow = Color(red: 1.0, green: 1.0, blue: 0.75)
+    static let pastelPink = Color(red: 1.0, green: 0.8, blue: 0.85)
+    static let pastelPurple = Color(red: 0.85, green: 0.75, blue: 1.0)
+    static let pastelMint = Color(red: 0.75, green: 1.0, blue: 0.9)
 }
 
 // MARK: - Preview
