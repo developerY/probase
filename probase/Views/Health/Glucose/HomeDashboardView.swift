@@ -16,7 +16,6 @@ extension Color {
     static let pastelMint = Color(red: 0.75, green: 1.0, blue: 0.9)
 }
 
-import SwiftUI
 
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: GlucoseDataStore
@@ -28,9 +27,9 @@ struct HomeDashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background Gradient
+                // Softer Background Gradient
                 LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.6), .green.opacity(0.6)]),
+                    gradient: Gradient(colors: [.blue.opacity(0.4), .green.opacity(0.4)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -38,8 +37,8 @@ struct HomeDashboardView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
-                        // Current Glucose
-                        VStack {
+                        // Current Glucose Card
+                        VStack(spacing: 8) {
                             Label {
                                 Text("Current Glucose")
                                     .font(.caption)
@@ -48,19 +47,19 @@ struct HomeDashboardView: View {
                                 Image(systemName: "heart.fill")
                                     .foregroundColor(.red)
                             }
-                            .padding(.bottom, 4)
 
                             Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
                                 .font(.system(size: 40, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
 
                             Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
                                 .font(.headline)
                                 .foregroundColor(.orange)
                         }
                         .padding()
-                        .background(Color("PastelBlue").opacity(0.9))
-                        .cornerRadius(12)
+                        .background(Color.blue.opacity(0.3))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
                         .padding(.horizontal)
 
                         // Key Stats
@@ -135,8 +134,9 @@ struct HomeDashboardView: View {
                 }
         }
         .padding(12)
-        .background(Color("PastelHeader").opacity(0.9))
+        .background(Color.white.opacity(0.9))
         .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 3)
     }
 }
 
