@@ -7,16 +7,22 @@
 import SwiftUI
 
 struct GlucoseHistoryView: View {
+    @State private var isChartExpanded: Bool = true  // State to control chart visibility
+    @EnvironmentObject private var dataStore: GlucoseDataStore
+    
+    
     var body: some View {
         NavigationView {
             VStack {
                 // A placeholder large chart area
-                GlucoseHistoryChartView()
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.blue.opacity(0.2))
-                    .overlay(Text("Glucose Chart").foregroundColor(.blue))
-                    .padding()
-                    .frame(height: 200)
+                // Expandable chart header with chevron
+                chartHeader(title: "Glucose History Chart", isExpanded: $isChartExpanded)
+
+                if isChartExpanded {
+                    GlucoseHistoryChartView()
+                        .environmentObject(dataStore)
+                        .transition(.slide)
+                }
 
                 // Time Range Picker (Day/Week/Month)
                 Picker("Range", selection: .constant(0)) {
@@ -65,6 +71,26 @@ struct GlucoseHistoryView: View {
         }
     }
 }
+
+// MARK: - Chart Header with Expand/Collapse Chevron
+private func chartHeader(title: String, isExpanded: Binding<Bool>) -> some View {
+    HStack {
+        Text(title)
+            .font(.headline)
+        Spacer()
+        Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+            .foregroundColor(.secondary)
+            .onTapGesture {
+                withAnimation(.easeInOut) {
+                    isExpanded.wrappedValue.toggle()
+                }
+            }
+    }
+    .padding(8)
+    .background(Color(UIColor.secondarySystemBackground))
+    .cornerRadius(8)
+}
+
 
 // MARK: - Preview
 struct GlucoseHistoryView_Previews: PreviewProvider {

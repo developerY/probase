@@ -55,7 +55,7 @@ struct HomeDashboardView: View {
                         isExpanded: $isDashboardTrendChartExpanded
                     )
                     if isDashboardTrendChartExpanded {
-                        DashboardTrendChartView()
+                        DashboardTrendChartViewOld()
                             .environmentObject(dataStore)
                             .transition(.slide)
                     }

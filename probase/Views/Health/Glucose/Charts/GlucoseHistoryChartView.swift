@@ -15,9 +15,7 @@ struct GlucoseHistoryChartView: View {
     
 
     var body: some View {
-        
-        // Glucose History Chart
-        Chart(filteredGlucoseData) { point in
+        Chart(dataStore.glucoseData) { point in
             LineMark(
                 x: .value("Time", point.date),
                 y: .value("Glucose Level", point.level)
