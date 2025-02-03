@@ -17,6 +17,8 @@ extension Color {
 }
 
 
+import SwiftUI
+
 struct HomeDashboardView: View {
     @EnvironmentObject var dataStore: GlucoseDataStore
 
@@ -24,57 +26,65 @@ struct HomeDashboardView: View {
     @State private var isMiniTrendChartExpanded = true
     @State private var isDashboardTrendChartExpanded = true
 
+    // Animation states
+    @State private var isPulsing = false
+    @State private var isPressed = false
+
     var body: some View {
         NavigationStack {
             ZStack {
-                // Softer Background Gradient
+                // Background Gradient with animation
                 LinearGradient(
                     gradient: Gradient(colors: [.blue.opacity(0.4), .green.opacity(0.4)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
+                //.animation(.linear(duration: 10).repeatForever(autoreverses: true), value: isPulsing)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
-                        // Current Glucose Card
-                        VStack(spacing: 8) {
-                            Label {
+                        // Current Glucose
+                        VStack {
+                        
+                            // Animated pulsing heart icon
+                            HStack {
+                                Image(systemName: "drop.fill")
+                                    .foregroundColor(.red)
+                                    .scaleEffect(isPulsing ? 1.2 : 1.0)
+                                    //.animation(.easeInOut(duration: 0.8).repeatForever(), value: isPulsing)
+                                
+                                
                                 Text("Current Glucose")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                            } icon: {
-                                Image(systemName: "heart.fill")
-                                    .foregroundColor(.red)
-                            }
+                            }.onAppear { isPulsing = true }
 
                             Text("\(String(format: "%.1f", dataStore.currentGlucose)) mmol/L")
                                 .font(.system(size: 40, weight: .bold))
-                                .foregroundColor(.primary)
-
+                                .foregroundColor(.black)
+                            
                             Text("Trending \(dataStore.glucoseData.last?.trendArrow ?? "→")")
                                 .font(.headline)
                                 .foregroundColor(.orange)
                         }
                         .padding()
-                        .background(Color.blue.opacity(0.3))
-                        .cornerRadius(16)
-                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
-                        .padding(.horizontal)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(12)
 
                         // Key Stats
                         HStack(spacing: 16) {
-                            DashboardStatView(title: "Time in Range", value: "72%", icon: "clock.fill", color: .green)
-                            DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U", icon: "drop.fill", color: .yellow)
-                            DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g", icon: "leaf.fill", color: .pink)
+                            DashboardStatView(title: "Time in Range", value: "72%", icon: "clock")
+                            DashboardStatView(title: "Active Insulin", value: "\(String(format: "%.2f", dataStore.activeInsulin)) U", icon: "syringe")
+                            DashboardStatView(title: "Carbs On Board", value: "\(Int(dataStore.carbsOnBoard)) g", icon: "leaf.fill")
                         }
-                        .padding(.horizontal)
 
-                        // Mini Trend Chart with header
+                        // Mini Trend Chart with expandable header
                         dashboardHeader(
                             title: "Mini Trend Chart",
+                            icon: "chart.line.uptrend.xyaxis",
                             isExpanded: $isMiniTrendChartExpanded,
-                            backgroundColor: Color.purple.opacity(0.4) // Use your desired pastel color
+                            backgroundColor: Color.purple.opacity(0.4)
                         )
                         if isMiniTrendChartExpanded {
                             MiniTrendChartView()
@@ -82,11 +92,12 @@ struct HomeDashboardView: View {
                                 .transition(.slide)
                         }
 
-                        // Dashboard Trend Chart with header
+                        // Dashboard Trend Chart with expandable header
                         dashboardHeader(
                             title: "Dashboard Trend Chart",
+                            icon: "rectangle.stack.fill",
                             isExpanded: $isDashboardTrendChartExpanded,
-                            backgroundColor: Color.teal.opacity(0.4) // Use a different pastel color for variety
+                            backgroundColor: Color.teal.opacity(0.4)
                         )
                         if isDashboardTrendChartExpanded {
                             DashboardTrendChartViewOld()
@@ -94,66 +105,77 @@ struct HomeDashboardView: View {
                                 .transition(.slide)
                         }
 
-                        // Quick Actions
+                        // Quick Actions with hover animation
                         HStack(spacing: 16) {
                             Button(action: {}) {
                                 Label("Log BG", systemImage: "drop.fill")
                             }
+                            .tint(.orange)
                             .buttonStyle(.borderedProminent)
-                            .tint(.blue)
+                            .scaleEffect(isPressed ? 0.95 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isPressed)
+                            /*.onLongPressGesture(minimumDuration: 0.1) {
+                                isPressed = true
+                            } onRelease: {
+                                isPressed = false
+                            }*/
 
                             Button(action: {}) {
                                 Label("Add Meal", systemImage: "fork.knife.circle")
                             }
+                            .tint(.cyan)
                             .buttonStyle(.borderedProminent)
-                            .tint(.orange)
+                            .scaleEffect(isPressed ? 0.95 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isPressed)
                         }
-                        .padding()
                     }
+                    .padding()
                 }
+                .navigationTitle("Dashboard")
             }
-            .navigationTitle("Dashboard")
         }
     }
 
-    // MARK: - Dashboard Header with Expand/Collapse Chevron and Custom Background Color
-    private func dashboardHeader(title: String, isExpanded: Binding<Bool>, backgroundColor: Color) -> some View {
+    // MARK: - Dashboard Header with Expand/Collapse Chevron Animation
+    private func dashboardHeader(title: String, icon: String, isExpanded: Binding<Bool>,  backgroundColor: Color) -> some View {
         HStack {
-            Image(systemName: title == "Mini Trend Chart" ? "chart.line.uptrend.xyaxis" : "chart.bar.doc.horizontal")
-                .font(.headline)
-                .foregroundColor(.white)
-            Text(title)
+            Label(title, systemImage: icon)
                 .font(.headline)
                 .foregroundColor(.white)
             Spacer()
-            Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
-                .font(.headline)
+            Image(systemName: isExpanded.wrappedValue ? "chevron.down" : "chevron.up")
                 .foregroundColor(.white)
+                //.rotationEffect(.degrees(isExpanded.wrappedValue ? 0 : 180))
+                //.transition(.move(edge: .top))
+                //.animation(.easeInOut(duration: 0.3), value: isExpanded.wrappedValue)
                 .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        isExpanded.wrappedValue.toggle()
-                    }
+                    //withAnimation(.smooth) {
+                    isExpanded.wrappedValue.toggle()
+                    //}
                 }
         }
         .padding(12)
-        .background(backgroundColor)
+        .background(backgroundColor) // Color.blue.opacity(0.5)
         .cornerRadius(12)
     }
-
 }
 
-// MARK: - DashboardStatView
+// MARK: - DashboardStatView with Icon
 struct DashboardStatView: View {
     let title: String
     let value: String
     let icon: String
-    let color: Color
 
     var body: some View {
         VStack {
-            Label(title, systemImage: icon)
-                .font(.caption)
+            Image(systemName: icon)
                 .foregroundColor(.secondary)
+                .font(.system(size: 24))
+
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.primary)
+
             Text(value)
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -161,7 +183,7 @@ struct DashboardStatView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(color.opacity(0.3))
+        .background(Color.green.opacity(0.5))
         .cornerRadius(12)
     }
 }
