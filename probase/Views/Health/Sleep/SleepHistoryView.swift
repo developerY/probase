@@ -154,29 +154,6 @@ struct SleepEntry: Identifiable {
     let note: String?
 }
 
-// MARK: - Reusable Stat Item View
-
-struct StatItemView: View {
-    var title: String
-    var value: String
-    
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.headline)
-                .foregroundColor(.primary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-    }
-}
-
 // MARK: - Preview
 
 struct SleepHistoryView_Previews: PreviewProvider {
