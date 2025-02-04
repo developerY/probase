@@ -130,32 +130,53 @@ struct SleepConsistency: Identifiable {
     let efficiency: Double
 }
 
-// MARK: - PieChartView Implementation
+// Helper model to store precomputed angles for each segment.
+struct PieSlice: Identifiable {
+    let id = UUID()
+    let segment: SleepCycleSegment
+    let startAngle: Angle
+    let angle: Angle
+}
+
+// MARK: - Updated PieChartView Implementation
 
 struct PieChartView: View {
     let segments: [SleepCycleSegment]
+    
+    // Compute total of percentages.
+    private var total: Double {
+        segments.reduce(0) { $0 + $1.percentage }
+    }
+    
+    // Precompute the slices with start angles and angle spans.
+    private var slices: [PieSlice] {
+        var slices: [PieSlice] = []
+        var currentAngle = Angle(degrees: -90)
+        for segment in segments {
+            let angle = Angle(degrees: (segment.percentage / total) * 360)
+            slices.append(PieSlice(segment: segment, startAngle: currentAngle, angle: angle))
+            currentAngle += angle
+        }
+        return slices
+    }
     
     var body: some View {
         GeometryReader { geometry in
             let width = min(geometry.size.width, geometry.size.height)
             let radius = width / 2
-            let center = CGPoint(x: geometry.size.width/2, y: geometry.size.height/2)
-            let total = segments.reduce(0) { $0 + $1.percentage }
-            var startAngle = Angle(degrees: -90)
+            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
             
             ZStack {
-                ForEach(segments) { segment in
-                    let angle = Angle(degrees: (segment.percentage / total) * 360)
+                ForEach(slices) { slice in
                     Path { path in
                         path.move(to: center)
                         path.addArc(center: center,
                                     radius: radius,
-                                    startAngle: startAngle,
-                                    endAngle: startAngle + angle,
+                                    startAngle: slice.startAngle,
+                                    endAngle: slice.startAngle + slice.angle,
                                     clockwise: false)
                     }
-                    .fill(segment.color)
-                    startAngle += angle
+                    .fill(slice.segment.color)
                 }
             }
         }
@@ -170,4 +191,3 @@ struct SleepAnalysisReportsView_Previews: PreviewProvider {
             .environment(\.colorScheme, .dark)
     }
 }
-
